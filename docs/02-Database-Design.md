@@ -35,7 +35,6 @@ The schema follows a set of deliberate design principles. These principles guide
 | **Normalization** | Data duplication is minimized across all tables. Authentication data (`users`) is kept separate from business domain data (`doctors`, `patients`). Each piece of information lives in exactly one place. |
 | **Referential Integrity** | Foreign keys are used consistently to maintain relationships between tables. No record can reference a parent that does not exist. This prevents orphan records and keeps the data consistent. |
 | **Soft Delete** | Records are never permanently removed during normal operations. The `deleted_at` timestamp marks a record as deleted while preserving it in the database. Historical data and appointment history remain intact. |
-| **Future Scalability** | Multi-hospital support has been considered from the beginning. Every major table carries a `hospital_id` column, so the schema can serve multiple hospitals without structural changes. |
 | **Business Rule Enforcement** | Critical business rules are enforced at two levels: the database (unique constraints, foreign keys, ENUM types) and the service layer (date validation, status checks). Neither layer is relied upon exclusively. |
 
 ---
@@ -44,10 +43,10 @@ The schema follows a set of deliberate design principles. These principles guide
 
 ---
 
-### 2.1 `hospitals`
+### 3.1 `hospitals`
 
 **Purpose:**  
-The `hospitals` table is the root of the schema. Every doctor, user, patient, and appointment belongs to a hospital. Currently, the system operates for a single hospital, but the schema is designed to support multiple hospitals in the future without structural changes.
+The `hospitals` table is the root of the schema. Every user, patient, and appointment is directly associated with a hospital. Doctor profiles inherit their hospital association through the related User record (`users.hospital_id`) rather than storing a separate hospital reference. Although the current implementation is intended for a single hospital, the schema is designed to support multiple hospitals in the future without structural changes.
 
 | Column | Data Type | Nullable | Default | Constraint |
 |---|---|---|---|---|
@@ -74,7 +73,7 @@ The `hospitals` table is the root of the schema. Every doctor, user, patient, an
 
 ---
 
-### 2.2 `users`
+### 3.2 `users`
 
 **Purpose:**  
 The `users` table handles all authentication and role assignment. Every person who logs into the system — Admin, Receptionist, or Doctor — has a record here. This table stores credentials and role only, not professional or personal profile details.
@@ -132,12 +131,12 @@ Mixing authentication data with business domain data in a single table is a comm
 
 **Purpose:**  
 The `doctors` table stores the professional profile of a doctor. It extends the `users` table via a one-to-one relationship. A doctor user has a login identity in `users` and professional details here. This separation keeps authentication concerns in one place and domain data in another.
+A doctor's hospital is derived through the associated User record rather than being stored directly in the Doctor table.
 
 | Column | Data Type | Nullable | Default | Constraint |
 |---|---|---|---|---|
 | `id` | `UUID` | NOT NULL | `gen_random_uuid()` | PRIMARY KEY |
 | `user_id` | `UUID` | NOT NULL | — | FOREIGN KEY → `users.id`, UNIQUE |
-| `hospital_id` | `UUID` | NOT NULL | — | FOREIGN KEY → `hospitals.id` |
 | `specialization` | `VARCHAR(100)` | NOT NULL | — | — |
 | `mobile` | `VARCHAR(20)` | NOT NULL | — | — |
 | `consultation_fee` | `DECIMAL(10, 2)` | NOT NULL | — | — |
@@ -151,7 +150,6 @@ The `doctors` table stores the professional profile of a doctor. It extends the 
 |---|---|
 | `id` | UUID primary key for the doctor profile record. |
 | `user_id` | Links this doctor profile to a user account. The UNIQUE constraint ensures one doctor profile per user — a one-to-one relationship. |
-| `hospital_id` | Denotes which hospital the doctor belongs to. Per the BRD: one doctor belongs to one hospital. This column is also the anchor for future multi-hospital queries. |
 | `specialization` | The doctor's medical specialization (e.g., Cardiology, Orthopaedics). Required for patient-facing display and appointment booking context. |
 | `mobile` | Doctor's contact number. Stored on the Doctor profile rather than User because it is a professional detail, not a login credential. |
 | `consultation_fee` | The fee charged per appointment. DECIMAL(10,2) ensures precision for monetary values — no floating-point rounding errors. |
@@ -160,7 +158,7 @@ The `doctors` table stores the professional profile of a doctor. It extends the 
 
 ---
 
-### 2.4 `patients`
+### 3.4 `patients`
 
 **Purpose:**  
 The `patients` table stores the registration details of every patient. Patients do not log in — they are managed by Receptionists. The `registered_by` column tracks which Receptionist created the record.
@@ -196,7 +194,7 @@ The `patients` table stores the registration details of every patient. Patients 
 
 ---
 
-### 2.5 `doctor_availabilities`
+### 3.5 `doctor_availabilities`
 
 **Purpose:**  
 The `doctor_availabilities` table defines which days of the week a doctor is available for appointments. Each record represents one availability window: a specific day of the week with a start time, end time, and slot duration. Time slots are generated from this availability based on the `slot_duration` value.
@@ -279,7 +277,7 @@ The `time_slots` table stores the specific, bookable time slots within a doctor'
 
 ---
 
-### 2.7 `appointments`
+### 3.7 `appointments`
 
 **Purpose:**  
 The `appointments` table is the operational heart of the system. It records every booking made between a patient and a doctor for a specific date and time slot. It also tracks the appointment's lifecycle (status), who booked it, and any consultation notes added by the doctor.
@@ -323,9 +321,9 @@ The `appointments` table is the operational heart of the system. It records ever
 
 ---
 
-## 3. Database Relationships
+## 4. Database Relationships
 
-### 3.1 Relationship Overview
+### 4.1 Relationship Overview
 
 ```mermaid
 erDiagram
@@ -350,7 +348,7 @@ erDiagram
 
 ---
 
-### 3.2 Relationship Explanations
+### 4.2 Relationship Explanations
 
 #### Hospital → Users `(One-to-Many)`
 One hospital employs many users (Admins, Receptionists, and Doctors). Each user belongs to exactly one hospital.  
@@ -358,10 +356,17 @@ One hospital employs many users (Admins, Receptionists, and Doctors). Each user 
 
 ---
 
-#### Hospital → Doctors `(One-to-Many)`
-One hospital has many doctors. Each doctor belongs to exactly one hospital.  
-This satisfies the BRD rule: *"One doctor belongs to one hospital."*  
-`hospitals.id` ← `doctors.hospital_id`
+#### Hospital → Doctor (Indirect Relationship)
+
+Doctors belong to a hospital through their associated User account.
+
+Hospital
+    ↓
+Users
+    ↓
+Doctors
+
+This avoids storing the same hospital reference twice while preserving the rule that every doctor belongs to exactly one hospital.
 
 ---
 
@@ -427,9 +432,9 @@ One time slot can appear in multiple appointments — but only on different date
 
 ---
 
-## 4. Business Rule Enforcement
+## 5. Business Rule Enforcement
 
-### 4.1 A Doctor Cannot Have Two Appointments in the Same Slot
+### 5.1 A Doctor Cannot Have Two Appointments in the Same Slot
 
 **Database Enforcement:**  
 A `UNIQUE` constraint on `(doctor_id, appointment_date, time_slot_id)` in the `appointments` table prevents this at the database level. Even if the application service layer misses the check, the database will reject the duplicate insert.
@@ -439,61 +444,51 @@ The Service Layer performs a conflict check before inserting. If a record alread
 
 ---
 
-### 4.2 Past Dates Cannot Be Booked
+### 5.2 Past Dates Cannot Be Booked
 
 **Database Enforcement:**  
 This rule cannot be enforced purely at the schema level with a static constraint because "past" is relative to the current date. It is enforced entirely at the **Service Layer**, which compares `appointment_date` against the current date before writing to the database.
 
 ---
 
-### 4.3 Cancelled Appointments Cannot Be Edited
+### 5.3 Cancelled Appointments Cannot Be Edited
 
 **Application Enforcement:**  
 The Service Layer checks `appointments.status` before allowing any update. If `status = 'cancelled'`, the service rejects the operation and returns an appropriate error. The `cancelled_at` timestamp also provides an immutable record of when the cancellation occurred. Similarly, if `status = 'completed'`, no further edits are permitted — the appointment lifecycle has ended.
 
----
-
-### 4.4 One Doctor Belongs to One Hospital
-
-**Database Enforcement:**  
-`doctors.hospital_id` is a non-null foreign key to `hospitals.id`. There is no composite key or join table — a doctor record has exactly one hospital reference. Changing a doctor's hospital requires a direct update to this column.
 
 ---
 
-### 4.5 Future Support for Multiple Hospitals
+### 5.5 Future Support for Multiple Hospitals
 
 **Database Design Enforcement:**  
 Every major table — `users`, `doctors`, `patients`, `appointments` — carries a `hospital_id` column. This means multi-hospital queries are already supported at the data level. When the UI and API are extended to support hospital selection, no schema changes are required.
 
 ---
 
-### 4.6 Soft Deletes
+### 5.6 Soft Deletes
 
 **Database Enforcement:**  
 The `deleted_at` column exists on all tables where records should never be permanently removed. Sequelize's `paranoid: true` mode automatically filters out records where `deleted_at IS NOT NULL` in all standard queries. Hard delete is blocked by design.
 
 ---
 
-## 5. Sequelize Association Design
+## 6. Sequelize Association Design
 
 This section describes which associations will be defined in Sequelize and why each one is needed.
 
-> No code is generated here. This is a design specification for the implementation phase.
-
 ---
 
-### 5.1 Association Map
+### 6.1 Association Map
 
 ```mermaid
 graph TD
-    H["Hospital"] -->|hasMany| U["User"]
-    H -->|hasMany| D["Doctor"]
+    H["Hospital"] -->|hasMany| U["User"]   
     H -->|hasMany| P["Patient"]
     H -->|hasMany| A["Appointment"]
 
     U -->|hasOne| D
     D -->|belongsTo| U
-    D -->|belongsTo| H
     D -->|hasMany| DA["DoctorAvailability"]
     D -->|hasMany| A
 
@@ -515,14 +510,12 @@ graph TD
 
 ---
 
-### 5.2 Association Rationale
+### 6.2 Association Rationale
 
 | Association | Reasoning |
 |---|---|
 | `Hospital.hasMany(User)` | Allows querying all users in a hospital. Supports future multi-hospital user management. |
 | `User.belongsTo(Hospital)` | Every user knows which hospital they belong to. Required for RBAC scoping. |
-| `Hospital.hasMany(Doctor)` | Allows fetching all doctors in a hospital for the Admin dashboard. |
-| `Doctor.belongsTo(Hospital)` | Satisfies the BRD rule. Allows hospital context to be included when loading a doctor. |
 | `User.hasOne(Doctor)` | Allows loading a doctor's professional profile from their user account. Used when the doctor logs in and their profile data is needed. |
 | `Doctor.belongsTo(User)` | Allows the Doctor record to include the user's name and email through a JOIN — avoids duplicating those fields in the doctors table. |
 | `Doctor.hasMany(DoctorAvailability)` | Allows fetching all working days for a doctor. Used when displaying the booking calendar. |
@@ -539,7 +532,7 @@ graph TD
 
 ---
 
-## 6. Index Strategy
+## 7. Index Strategy
 
 Indexes are created only where query performance justifiably requires them. Over-indexing adds write overhead with no benefit for a system of this scale.
 
@@ -560,9 +553,9 @@ Indexes are created only where query performance justifiably requires them. Over
 
 ---
 
-## 7. ER Diagram
+## 8. ER Diagram
 
-### 7.1 Entity-Relationship Diagram
+### 8.1 Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -593,7 +586,6 @@ erDiagram
     DOCTORS {
         uuid id PK
         uuid user_id FK
-        uuid hospital_id FK
         varchar specialization
         varchar mobile
         decimal consultation_fee
@@ -671,35 +663,6 @@ erDiagram
 
 ---
 
-## 8. Database Normalization
-
-The schema is designed to satisfy the first three normal forms. Below is a concise explanation of each and how this schema qualifies.
-
-### First Normal Form (1NF)
-> Every column must hold atomic values. No repeating groups. Every row must be uniquely identifiable.
-
-**How this schema satisfies 1NF:**
-- Every column holds a single, indivisible value. `gender` is a single ENUM, not a comma-separated list. `day_of_week` is a single ENUM per row.
-- There are no arrays or embedded lists in any column.
-- Every table has a UUID primary key that uniquely identifies each row.
-
-### Second Normal Form (2NF)
-> Must be in 1NF. Every non-key column must depend on the entire primary key, not a partial key.
-
-**How this schema satisfies 2NF:**
-- All tables use a single-column UUID primary key. There are no composite primary keys. Therefore, partial dependency is structurally impossible — every non-key column depends on the full primary key by definition.
-
-### Third Normal Form (3NF)
-> Must be in 2NF. No transitive dependencies — non-key columns must not depend on other non-key columns.
-
-**How this schema satisfies 3NF:**
-- `doctors` stores professional details only. Name and email come from `users` through the association — they are not repeated.
-- `appointments` does not store the doctor's name, specialization, or patient's name directly. These are resolved through foreign key joins at query time.
-- `doctor_availabilities` does not store the doctor's name or hospital — those are resolved through `doctor_id`.
-- Every non-key column in every table depends only on its table's primary key.
-
----
-
 ## 9. Soft Delete Strategy
 
 ### Why Soft Delete?
@@ -742,30 +705,6 @@ Sequelize's `paranoid: true` option on a model definition activates soft delete 
 | `doctor_availabilities` | ✅ Yes | Preserves the context under which time slots were generated. |
 | `time_slots` | ❌ No | Time slots are configuration data. `is_active = FALSE` is sufficient. No transactional history depends on the slot record itself. |
 | `appointments` | ✅ Yes | Appointment records are never deleted. Cancellation is a status change, not a deletion. |
-
----
-
-## 10. Future Scalability
-
-Only two future improvements are relevant to this project scope.
-
-### 10.1 Supporting Multiple Hospitals
-
-The schema already supports multiple hospitals. The `hospital_id` foreign key exists on every relevant table: `users`, `doctors`, `patients`, and `appointments`. No schema migration is required to onboard a second hospital.
-
-What will be required at that point:
-- The API layer will need to scope queries by `hospital_id` based on the logged-in user's context.
-- The UI will need hospital-switching or hospital-specific login flows.
-- The database itself requires no changes.
-
-### 10.2 Moving PostgreSQL to AWS RDS
-
-Currently, PostgreSQL runs on the same EC2 instance as the application. When the system grows and database performance or reliability becomes a concern, PostgreSQL can be migrated to **AWS RDS for PostgreSQL** — a managed database service.
-
-The impact on the application is minimal:
-- Only the database connection configuration changes (the host URL moves from `localhost` to the RDS endpoint).
-- No changes to Sequelize models, migrations, or application logic are required.
-- RDS provides automated backups, point-in-time recovery, and managed updates — removing database administration overhead from the application team.
 
 ---
 
