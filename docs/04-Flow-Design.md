@@ -13,6 +13,10 @@
 
 This flow describes how a Receptionist registers a new patient and books an appointment. The system checks whether the patient already exists before creating a new record. Once a slot is confirmed, the appointment is stored and a notification is dispatched asynchronously.
 
+### 1.1 Patient Registration & Appointment Booking
+
+This flow describes how a Receptionist registers a new patient and books an appointment. The system checks whether the patient already exists before creating a new record. Once a slot is confirmed, the appointment is stored and a notification is dispatched asynchronously.
+
 ```mermaid
 flowchart TD
     A([Receptionist Logs In]) --> B[Search Patient by Name or Phone]
