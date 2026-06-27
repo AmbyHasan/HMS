@@ -115,7 +115,7 @@ graph TD
     SQSPoll -->|Long Poll| SQS
     SQSPoll --> SMTP
     SMTP -->|Send Email| EmailSvc
-    EmailSvc -->|Delivers Email| Browser
+    EmailSvc -->|Delivers Email| UserInbox["User Mailbox"]
 ```
 
 ### Why Each Component Exists
