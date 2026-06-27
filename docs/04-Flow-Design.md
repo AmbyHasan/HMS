@@ -342,15 +342,6 @@ flowchart TD
     J --> K([Record Restored and Visible Again])
 ```
 
-### Why Soft Delete
-
-| Concern | Hard Delete | Soft Delete |
-|---|---|---|
-| Data Recovery | Not possible | Record can be restored |
-| Historical Reference | Lost permanently | Preserved in database |
-| Referential Integrity | Foreign key violations possible | All references remain intact |
-| Future Audit Support | Requires separate audit table | Already available in existing tables |
-
 ---
 
 ## 8. Authentication & RBAC Flow
