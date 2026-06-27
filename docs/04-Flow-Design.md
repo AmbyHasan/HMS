@@ -9,9 +9,6 @@
 
 ## 1. Business Flow Diagrams
 
-### 1.1 Patient Registration & Appointment Booking
-
-This flow describes how a Receptionist registers a new patient and books an appointment. The system checks whether the patient already exists before creating a new record. Once a slot is confirmed, the appointment is stored and a notification is dispatched asynchronously.
 
 ### 1.1 Patient Registration & Appointment Booking
 
@@ -21,19 +18,26 @@ This flow describes how a Receptionist registers a new patient and books an appo
 flowchart TD
     A([Receptionist Logs In]) --> B[Search Patient by Name or Phone]
     B --> C{Patient Exists?}
+
     C -- No --> D[Register New Patient]
     D --> E[Patient Record Created]
     C -- Yes --> E
+
     E --> F[Select Doctor]
-    F --> G[View Doctor Availability]
-    G --> H[Select Available Time Slot]
-    H --> I{Slot Available?}
-    I -- No --> H
-    I -- Yes --> J[Create Appointment]
-    J --> K[Appointment Status: Booked]
-    K --> L[Publish Message to SQS]
-    L --> M[Confirmation Email Sent to Patient]
-    K --> N([Appointment Confirmed])
+    F --> G[Select Appointment Date]
+    G --> H[Fetch Available Time Slots]
+    H --> I[Display Active & Unbooked Time Slots]
+    I --> J[Receptionist Selects Time Slot]
+    J --> K[Create Appointment]
+
+    K --> L{Slot Still Available?}
+    L -- No --> I
+    L -- Yes --> M[Appointment Status: Booked]
+
+    M --> N[Publish Message to Amazon SQS]
+    N --> O[Notification Worker Sends Confirmation Email]
+
+    M --> P([Appointment Confirmed])
 ```
 
 ---
@@ -44,7 +48,7 @@ This flow describes how a Doctor views their assigned appointments, reviews pati
 
 ```mermaid
 flowchart TD
-    A([Doctor Logs In]) --> B[View Today's Appointments]
+    A([Doctor Logs In]) --> B[View Today's Schedule]
     B --> C[Select Appointment]
     C --> D[View Patient Details]
     D --> E[Add Consultation Notes]
@@ -162,7 +166,7 @@ sequenceDiagram
     participant AppointmentRepository
     participant DB as PostgreSQL
 
-    Doctor->>AuthMiddleware: GET /api/v1/appointments/my
+    Doctor->>AuthMiddleware: GET /api/v1/appointments/schedule
     AuthMiddleware->>AuthMiddleware: Verify JWT Token
 
     alt Token Invalid or Expired
@@ -197,7 +201,7 @@ flowchart TD
     H -- No --> I([403 Forbidden])
     H -- Yes --> J[Validation Middleware\nValidate Request Payload]
     J --> K{Payload Valid?}
-    K -- No --> L([422 Unprocessable Entity])
+    K -- No --> L([400 Bad Request])
     K -- Yes --> M[Controller\nHandle Request]
     M --> N[Service\nBusiness Logic]
     N --> O[Repository\nData Access]
@@ -379,7 +383,7 @@ flowchart TD
 | View Patient Details | ❌ | ❌ | ✅ |
 | Add Consultation Notes | ❌ | ❌ | ✅ |
 | Mark Appointment Completed | ❌ | ❌ | ✅ |
-| View Dashboard | ✅ | ❌ | ❌ |
+| View Dashboard | ✅ | ✅ | ✅ |  
 
 ---
 
