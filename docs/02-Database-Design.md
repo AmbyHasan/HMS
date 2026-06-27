@@ -21,19 +21,6 @@
 
 ---
 
-## 2. Database Design Principles
-
-The schema follows a set of deliberate design principles. These principles guide every table, column, and constraint decision in this document.
-
-| Principle | How It Is Applied |
-|---|---|
-| **Normalization** | Data duplication is minimized across all tables. Authentication data (`users`) is kept separate from business domain data (`doctors`, `patients`). Each piece of information lives in exactly one place. |
-| **Referential Integrity** | Foreign keys are used consistently to maintain relationships between tables. No record can reference a parent that does not exist. This prevents orphan records and keeps the data consistent. |
-| **Soft Delete** | Records are never permanently removed during normal operations. The `deleted_at` timestamp marks a record as deleted while preserving it in the database. Historical data and appointment history remain intact. |
-| **Business Rule Enforcement** | Critical business rules are enforced at two levels: the database (unique constraints, foreign keys, ENUM types) and the service layer (date validation, status checks). Neither layer is relied upon exclusively. |
-
----
-
 ## 3. Table Definitions
 
 ---
