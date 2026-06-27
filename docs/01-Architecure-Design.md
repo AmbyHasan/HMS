@@ -136,7 +136,7 @@ graph TD
 
 ## 4. AWS Architecture
 
-The entire system runs on a **single EC2 instance** — practical for a training project, with a schema that supports future horizontal scaling.
+The entire system runs on a **single EC2 instance**.
 
 ```mermaid
 graph TD
