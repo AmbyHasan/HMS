@@ -167,10 +167,9 @@ graph TD
 
 | Component | Why Used |
 |---|---|
-| **EC2** | A general-purpose virtual server. Gives full control over the environment — Node.js, PostgreSQL, Nginx, and PM2 all run here. Cost-effective and straightforward for this scope. |
-| **Security Group** | Acts as a virtual firewall on the EC2 instance. Only web traffic and SSH are permitted from the internet. The database and application server are accessible only within the instance itself. |
+| **EC2** | A general-purpose virtual server. Gives full control over the environment — Node.js, PostgreSQL, Nginx, and PM2 all run here.|
 | **Amazon SQS** | A fully managed message queue. No infrastructure to configure or maintain. Decouples the API from the email-sending process, ensuring notifications do not slow down or break the main application. |
-| **No Separate RDS** | PostgreSQL runs on the same EC2 instance per the manager's decision. This reduces cost and infrastructure complexity for a training project. |
+| **No Separate RDS** | PostgreSQL runs on the same EC2 instance. |
 
 ### Deployment Flow (Manual)
 
