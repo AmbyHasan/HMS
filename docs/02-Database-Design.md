@@ -177,7 +177,7 @@ The `patients` table stores the registration details of every patient. Patients 
 ### 3.5 `doctor_availabilities`
 
 **Purpose:**  
-The `doctor_availabilities` table defines which days of the week a doctor is available for appointments. Each record represents one availability window: a specific day of the week with a start time, end time, and slot duration. Time slots are generated from this availability based on the `slot_duration` value.
+The `doctor_availabilities` table defines a doctor's weekly working schedule. Each record represents one availability window for a specific day of the week, including the start time, end time, and slot duration. Whenever an availability record is created or updated, the system automatically generates the corresponding appointment time slots. Receptionists can only book appointments using these generated slots, ensuring consistent scheduling and preventing invalid appointment times.
 
 | Column | Data Type | Nullable | Default | Constraint |
 |---|---|---|---|---|
@@ -306,7 +306,6 @@ The `appointments` table is the operational heart of the system. It records ever
 ```mermaid
 erDiagram
     HOSPITALS ||--o{ USERS : "employs"
-    HOSPITALS ||--o{ DOCTORS : "has"
     HOSPITALS ||--o{ PATIENTS : "registers"
     HOSPITALS ||--o{ APPOINTMENTS : "hosts"
 
@@ -440,8 +439,13 @@ The Service Layer checks `appointments.status` before allowing any update. If `s
 ### 5.5 Future Support for Multiple Hospitals
 
 **Database Design Enforcement:**  
-Every major table — `users`, `doctors`, `patients`, `appointments` — carries a `hospital_id` column. This means multi-hospital queries are already supported at the data level. When the UI and API are extended to support hospital selection, no schema changes are required.
+The schema is designed to support multiple hospitals without structural changes. Hospital ownership is maintained either directly or indirectly:
 
+- `users`, `patients`, and `appointments` store a direct `hospital_id` reference.
+- Doctors inherit their hospital association through the related User record (`users.hospital_id`) instead of storing a separate `hospital_id`.
+- This design avoids redundant data while ensuring every business entity belongs to exactly one hospital.
+
+When the application is extended to support multiple hospitals, all hospital-scoped queries can be implemented without modifying the database schema.
 ---
 
 ### 5.6 Soft Deletes
@@ -518,7 +522,6 @@ Indexes are created only where query performance justifiably requires them. Over
 |---|---|---|---|---|
 | `idx_users_email` | `users` | `email` | UNIQUE | Login lookup by email on every authentication request. |
 | `idx_users_hospital_id` | `users` | `hospital_id` | Standard | Fetch all users in a hospital (Admin management screen). |
-| `idx_doctors_hospital_id` | `doctors` | `hospital_id` | Standard | Fetch all doctors in a hospital (Admin dashboard, doctor list). |
 | `idx_doctors_user_id` | `doctors` | `user_id` | UNIQUE | One-to-one join from User to Doctor profile. High-frequency lookup at login. |
 | `idx_patients_mobile` | `patients` | `mobile` | Standard | Receptionist searches for a patient by phone number before booking. |
 | `idx_patients_hospital_id` | `patients` | `hospital_id` | Standard | Fetch all patients registered at a hospital. |
