@@ -362,77 +362,13 @@ graph TD
 | `hms-api` | Express API Server — handles all incoming HTTP requests |
 | `hms-worker` | SQS Long Polling Worker — consumes notification events and sends emails |
 
-**Why PM2?**
-- Keeps both processes alive after crashes or server reboots
-- Supports zero-downtime restarts when deploying new code
-- Provides per-process log management
-
-**PM2 Cluster Mode — Load Balancing Note**
-
-PM2 supports a **Cluster Mode** that can run multiple instances of the Node.js API across all available CPU cores, with built-in load balancing between them.
-
-For this training project, we will start with a **single instance** — one API process and one worker process. This keeps the setup simple and easy to manage.
-
-If traffic grows, **Cluster Mode can be enabled without changing any application code**. PM2 handles the forking and load distribution transparently. This gives us a clear, low-friction growth path when needed.
-
-**Why Nginx in front of Node?**
-- Node.js is never exposed directly to the internet
-- Nginx handles SSL termination, compression, and serves the React static build efficiently
-- Clean URL routing: `/` → React app, `/api/*` → Node.js
-
-**Why PostgreSQL on the same instance?**
-- Per manager's decision and project scope
-- Eliminates network latency for database queries
-- The database is bound internally and is never reachable from outside the instance
-
 ---
 
-## 8. Why These Design Decisions?
-
-### Why Layered Architecture?
-
-A layered monolith separates the application into clearly defined responsibilities: routing, business logic, and data access each live in their own layer. This makes the codebase easy to navigate, test, and explain. For a two-week training project, a monolith is the correct starting point — it avoids the operational overhead of microservices without sacrificing code organisation.
-
-### Why PostgreSQL Instead of MongoDB?
-
-Hospital data is inherently relational. Doctors, patients, appointments, and consultations are all connected through well-defined relationships. PostgreSQL enforces referential integrity, supports transactions, and guarantees data consistency. A document database offers flexibility we do not need here and trades away structure we depend on.
-PostgreSQL also allows critical business rules to be enforced through database constraints. For example, a unique constraint on `(doctor_id, appointment_date, time_slot)` ensures that a doctor cannot have two appointments in the same time slot, even if multiple booking requests are processed concurrently. While the Service Layer performs validation to provide immediate feedback to users, the database acts as the final safeguard to maintain data integrity.
-
-### Why Sequelize ORM?
-
-Sequelize provides model definitions, database migrations, and associations in a clean JavaScript API. It supports soft deletes natively through its `paranoid` option, which is a direct project requirement. It also means we can evolve the schema over time using versioned migration files rather than manual SQL changes.
-
-### Why JWT Authentication?
-
-JWT is stateless — the server does not need to store session data in a database or cache. Each token is self-contained and carries the user's identity and role. This simplifies authentication across the API: middleware verifies the token on every request without any additional database lookup.
-
-### Why Amazon SQS?
-
-When an appointment is booked or cancelled, the system needs to send a notification email. If email sending happens synchronously inside the API request, a slow SMTP server or a transient failure directly impacts the user experience. SQS decouples this: the API publishes a notification event to the queue and responds immediately. A background worker consumes the event and sends the email independently.
-
-**Without SQS vs. With SQS:**
-
-| Without SQS | With SQS |
-|---|---|
-| API waits for email to send before responding | API responds immediately; email is sent in the background |
-| An email failure can cause the booking request to fail | An email failure is isolated and does not affect the booking |
-| Slower user experience on every notification trigger | Fast, consistent response time for all API operations |
-
-### Why PM2?
-
-PM2 is a production-grade process manager for Node.js. It keeps the API server and the SQS worker running continuously, restarts them automatically if they crash, and survives server reboots via a startup script. It also supports Cluster Mode for horizontal scaling across CPU cores — relevant if load increases without changing infrastructure.
-
-### Why Soft Delete?
-
-Soft deletes ensure that no data is permanently removed from the database during normal operations. When a doctor or patient record is deleted, a `deleted_at` timestamp is populated on that row. The record is hidden from all normal queries but remains in the database. This supports audit trails, prevents accidental data loss, and allows records to be restored if needed. Sequelize handles this automatically once configured — queries that should ignore soft-deleted records do so without any additional filtering code.
-
----
-
-## 9. Component Communication
+## 8. Component Communication
 
 This section describes exactly how every component in the system talks to every other component.
 
-### 9.1 Communication Flow Map
+### 8.1 Communication Flow Map
 
 ```mermaid
 sequenceDiagram
@@ -472,7 +408,7 @@ sequenceDiagram
     W->>SQS: Acknowledge and remove message
 ```
 
-### 9.2 Channel-by-Channel Breakdown
+### 8.2 Channel-by-Channel Breakdown
 
 ---
 
@@ -534,7 +470,7 @@ sequenceDiagram
 
 ---
 
-### 9.3 Error Propagation Path
+### 8.3 Error Propagation Path
 
 ```mermaid
 flowchart LR
