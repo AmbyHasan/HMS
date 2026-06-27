@@ -465,7 +465,7 @@ graph TD
     H -->|hasMany| P["Patient"]
     H -->|hasMany| A["Appointment"]
 
-    U -->|hasOne| D["Doctor]
+    U -->|hasOne| D["Doctor"]
     D -->|belongsTo| U
     D -->|hasMany| DA["DoctorAvailability"]
     D -->|hasMany| A
