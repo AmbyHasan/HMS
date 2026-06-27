@@ -293,12 +293,6 @@ sequenceDiagram
     end
 ```
 
-### Why SQS Improves User Experience
-
-Without SQS, the API would need to call the SMTP server directly before returning a response. If the SMTP server is slow or temporarily unavailable, the user would experience a delayed or failed response even though the appointment was successfully created.
-
-By publishing to SQS first, the API responds immediately. The Notification Worker handles email delivery in the background. The user receives confirmation of their appointment without waiting for the email to be sent.
-
 ---
 
 ## 6. Doctor Availability Flow
@@ -332,20 +326,21 @@ The system uses soft delete across all entities. Records are never permanently r
 
 ```mermaid
 flowchart TD
-    A([Delete Request Received]) --> B{Entity Type}
-    B -- Doctor --> C[Set deleted_at on Doctor Record]
-    B -- Patient --> D[Set deleted_at on Patient Record]
-    B -- Appointment --> E[Set deleted_at on Appointment Record]
+    A([Admin Sets Doctor Availability]) --> B[POST /api/v1/doctors/:id/availability]
+    B --> C[DoctorAvailability Created]
+    C --> D[System Generates Time Slots]
+    D --> E[TimeSlot Records Stored]
 
-    C --> F[Record Excluded from All Standard Queries]
-    D --> F
-    E --> F
-
-    F --> G{Query Type}
-    G -- Standard Query --> H([Records with deleted_at are Invisible])
-    G -- Admin Restore --> I[Fetch Record Including Soft Deleted]
-    I --> J[Clear deleted_at Timestamp]
-    J --> K([Record Restored and Visible Again])
+    E --> F([Receptionist Books Appointment])
+    F --> G[GET Available Slots]
+    G --> H[Backend Filters Out Already Booked Slots]
+    H --> I[Display Available Slots]
+    I --> J[Receptionist Selects Slot]
+    J --> K[POST /api/v1/appointments]
+    K --> L[Backend Rechecks Slot Availability]
+    L --> M{Still Available?}
+    M -- Yes --> N([Appointment Created])
+    M -- No --> O([409 Conflict · Select Another Slot])
 ```
 
 ### Why Soft Delete
