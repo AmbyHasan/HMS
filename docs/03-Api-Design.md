@@ -117,7 +117,6 @@ Before listing individual APIs, the following principles govern the entire API d
 
 #### POST `/api/v1/auth/forgot-password`
 
-> **Optional Feature** — As noted in the BRD, Forgot Password is optional and will be implemented if time permits within the two-week delivery window. The endpoint is documented here for completeness.
 
 | Field | Detail |
 |---|---|
@@ -1512,27 +1511,7 @@ This matrix defines exactly which actions each role can perform, derived directl
 | **Dashboard** | 3 | `GET /dashboard/admin` · `GET /dashboard/receptionist` · `GET /dashboard/doctor` | Role-specific metric summaries |
 | **Total** | **23** | | |
 
-> *Forgot Password is optional per the BRD and will be implemented subject to available time within the two-week delivery window.
 
 ---
 
-## Summary
 
-```mermaid
-graph LR
-    A["23 API Endpoints"] --> B["6 Modules"]
-    B --> C["3 User Roles"]
-    C --> D["1 Standard Response Format"]
-    D --> E["1 Layered Backend Structure"]
-    E --> F["Clean · Practical · Presentable"]
-```
-
-| Decision | Rationale |
-|---|---|
-| `/api/v1` prefix | Supports future API versioning without breaking changes |
-| Sub-action endpoints (`:id/cancel`, `:id/complete`) | Keeps resources and actions clearly separated |
-| 3 separate dashboard endpoints | Each role sees only its own metrics — no conditional rendering required |
-| Validators as middleware | Fail fast, single responsibility, consistent error shape |
-| Constants for roles and statuses | Prevents string comparison bugs; easy to update in one place |
-| `responseHelper` utility | Guarantees every response follows the same envelope — no inconsistencies |
-| Separate `app.js` and `worker.js` entry points | Two PM2 processes — API server and SQS worker — started independently |
