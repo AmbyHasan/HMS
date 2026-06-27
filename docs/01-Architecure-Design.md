@@ -52,7 +52,21 @@ mindmap
       Mark Appointment Completed
 ```
 
-### 2.3 Core Business Rules
+### 2.3 Application Modules
+
+The Hospital Management System is organized into the following functional modules. Each module encapsulates a specific business capability and exposes only the functionality relevant to the authorized user roles.
+
+| Module | Description |
+|---------|-------------|
+| Authentication | Handles user login, logout, JWT authentication, and role-based access control. |
+| Doctor Management | Allows the Admin to create, update, delete, and view doctor profiles. |
+| Doctor Availability | Allows the Admin to define each doctor's working schedule, including available days, working hours, and slot duration. The system uses the configured working schedule to generate the available appointment time slots that Receptionists can book. |
+| Patient Management | Allows Admins and Receptionists to register, update, and view patient records. |
+| Appointment Management | Handles appointment booking, rescheduling, cancellation, and appointment history while enforcing scheduling business rules. |
+| Consultation | Allows Doctors to view assigned appointments, add consultation notes, and mark appointments as completed. |
+| Dashboard | Provides role-specific dashboards with operational summaries and statistics. |
+
+### 2.4 Core Business Rules
 
 - A doctor **cannot** have two appointments in the same time slot
 - **Past dates** cannot be booked

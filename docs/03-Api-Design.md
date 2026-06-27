@@ -411,7 +411,290 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-### 2.3 Patient Management
+### 2.3 Doctor Availability
+
+This module allows an Admin to configure a doctor's weekly working schedule. Based on the configured working hours and slot duration, the system automatically generates appointment time slots. Receptionists can only book appointments using these generated slots.
+
+---
+
+#### POST `/api/v1/doctors/:id/availability`
+
+| Field             | Detail                                                                                                                                                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**       | Creates a weekly availability schedule for a doctor. After the availability is successfully created, the system automatically generates appointment time slots based on the configured working hours and slot duration. |
+| **Method**        | `POST`                                                                                                                                                                                                                  |
+| **Endpoint**      | `/api/v1/doctors/:id/availability`                                                                                                                                                                                      |
+| **Auth Required** | Yes                                                                                                                                                                                                                     |
+| **Allowed Roles** | Admin                                                                                                                                                                                                                   |
+
+**Request Parameters:**
+
+| Parameter | Type | Description                    |
+| --------- | ---- | ------------------------------ |
+| `id`      | UUID | The doctor's unique identifier |
+
+**Request Body:**
+
+| Field          | Type    | Required | Description                                  |
+| -------------- | ------- | -------- | -------------------------------------------- |
+| `dayOfWeek`    | String  | Yes      | Day of the week (`Monday` - `Sunday`)        |
+| `startTime`    | Time    | Yes      | Doctor's working hour start time             |
+| `endTime`      | Time    | Yes      | Doctor's working hour end time               |
+| `slotDuration` | Integer | Yes      | Duration of each appointment slot in minutes |
+
+**Success Response — `201 Created`:**
+
+```json
+{
+  "success": true,
+  "message": "Doctor availability created successfully",
+  "data": {
+    "id": "<uuid>",
+    "doctorId": "<uuid>",
+    "dayOfWeek": "Monday",
+    "startTime": "09:00",
+    "endTime": "13:00",
+    "slotDuration": 30
+  },
+  "timestamp": "<ISO timestamp>"
+}
+```
+
+**Validation Rules:**
+
+| Field          | Rule                                                                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `dayOfWeek`    | Required. Must be one of: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday. One availability record is allowed per doctor per day. |
+| `startTime`    | Required. Must be earlier than `endTime`.                                                                                                        |
+| `endTime`      | Required. Must be later than `startTime`.                                                                                                        |
+| `slotDuration` | Required. Positive integer greater than zero.                                                                                                    |
+
+**Error Responses:**
+
+| Status | Scenario                                         |
+| ------ | ------------------------------------------------ |
+| `400`  | Validation failure                               |
+| `401`  | Unauthenticated                                  |
+| `403`  | Not an Admin                                     |
+| `404`  | Doctor not found                                 |
+| `409`  | Availability already exists for the selected day |
+
+---
+
+#### GET `/api/v1/doctors/:id/availability`
+
+| Field             | Detail                                                                         |
+| ----------------- | ------------------------------------------------------------------------------ |
+| **Purpose**       | Returns all configured weekly availability schedules for the specified doctor. |
+| **Method**        | `GET`                                                                          |
+| **Endpoint**      | `/api/v1/doctors/:id/availability`                                             |
+| **Auth Required** | Yes                                                                            |
+| **Allowed Roles** | Admin                                                                          |
+
+**Request Parameters:**
+
+| Parameter | Type | Description                    |
+| --------- | ---- | ------------------------------ |
+| `id`      | UUID | The doctor's unique identifier |
+
+**Success Response — `200 OK`:**
+
+```json
+{
+  "success": true,
+  "message": "Doctor availability retrieved successfully",
+  "data": [
+    {
+      "id": "<uuid>",
+      "dayOfWeek": "Monday",
+      "startTime": "09:00",
+      "endTime": "13:00",
+      "slotDuration": 30
+    },
+    {
+      "id": "<uuid>",
+      "dayOfWeek": "Tuesday",
+      "startTime": "10:00",
+      "endTime": "16:00",
+      "slotDuration": 30
+    }
+  ],
+  "timestamp": "<ISO timestamp>"
+}
+```
+
+**Error Responses:**
+
+| Status | Scenario         |
+| ------ | ---------------- |
+| `401`  | Unauthenticated  |
+| `403`  | Not an Admin     |
+| `404`  | Doctor not found |
+
+---
+
+#### PUT `/api/v1/availability/:id`
+
+| Field             | Detail                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**       | Updates an existing doctor availability schedule. After a successful update, the system regenerates future appointment time slots. Availability cannot be updated if future appointments already exist for that schedule. |
+| **Method**        | `PUT`                                                                                                                                                                                                                     |
+| **Endpoint**      | `/api/v1/availability/:id`                                                                                                                                                                                                |
+| **Auth Required** | Yes                                                                                                                                                                                                                       |
+| **Allowed Roles** | Admin                                                                                                                                                                                                                     |
+
+**Request Parameters:**
+
+| Parameter | Type | Description                        |
+| --------- | ---- | ---------------------------------- |
+| `id`      | UUID | The availability record identifier |
+
+**Request Body:**
+
+| Field          | Type    | Required | Description                      |
+| -------------- | ------- | -------- | -------------------------------- |
+| `startTime`    | Time    | No       | Updated working hour start time  |
+| `endTime`      | Time    | No       | Updated working hour end time    |
+| `slotDuration` | Integer | No       | Updated slot duration in minutes |
+
+**Success Response — `200 OK`:**
+
+```json
+{
+  "success": true,
+  "message": "Doctor availability updated successfully",
+  "data": {
+    "id": "<uuid>",
+    "dayOfWeek": "Monday",
+    "startTime": "10:00",
+    "endTime": "15:00",
+    "slotDuration": 20
+  },
+  "timestamp": "<ISO timestamp>"
+}
+```
+
+**Validation Rules:**
+
+| Field          | Rule                                                   |
+| -------------- | ------------------------------------------------------ |
+| `startTime`    | Optional. If provided, must be earlier than `endTime`. |
+| `endTime`      | Optional. If provided, must be later than `startTime`. |
+| `slotDuration` | Optional. If provided, must be greater than zero.      |
+
+**Error Responses:**
+
+| Status | Scenario                                                |
+| ------ | ------------------------------------------------------- |
+| `400`  | Validation failure                                      |
+| `401`  | Unauthenticated                                         |
+| `403`  | Not an Admin                                            |
+| `404`  | Availability not found                                  |
+| `422`  | Future appointments already exist for this availability |
+
+---
+
+#### DELETE `/api/v1/availability/:id`
+
+| Field             | Detail                                                                                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**       | Deactivates a doctor's availability schedule. Historical appointment records remain unchanged and no new appointments can be booked against the deactivated schedule. |
+| **Method**        | `DELETE`                                                                                                                                                              |
+| **Endpoint**      | `/api/v1/availability/:id`                                                                                                                                            |
+| **Auth Required** | Yes                                                                                                                                                                   |
+| **Allowed Roles** | Admin                                                                                                                                                                 |
+
+**Request Parameters:**
+
+| Parameter | Type | Description                        |
+| --------- | ---- | ---------------------------------- |
+| `id`      | UUID | The availability record identifier |
+
+**Success Response — `200 OK`:**
+
+```json
+{
+  "success": true,
+  "message": "Doctor availability deactivated successfully",
+  "data": null,
+  "timestamp": "<ISO timestamp>"
+}
+```
+
+**Error Responses:**
+
+| Status | Scenario                                                |
+| ------ | ------------------------------------------------------- |
+| `401`  | Unauthenticated                                         |
+| `403`  | Not an Admin                                            |
+| `404`  | Availability not found                                  |
+| `422`  | Future appointments already exist for this availability |
+
+---
+
+#### GET `/api/v1/doctors/:id/available-slots`
+
+| Field             | Detail                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**       | Returns all available appointment time slots for a doctor on the specified date. Booked slots are automatically excluded from the response. |
+| **Method**        | `GET`                                                                                                                                       |
+| **Endpoint**      | `/api/v1/doctors/:id/available-slots`                                                                                                       |
+| **Auth Required** | Yes                                                                                                                                         |
+| **Allowed Roles** | Admin, Receptionist                                                                                                                         |
+
+**Request Parameters:**
+
+| Parameter | Type | Description                    |
+| --------- | ---- | ------------------------------ |
+| `id`      | UUID | The doctor's unique identifier |
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description                     |
+| --------- | ---- | -------- | ------------------------------- |
+| `date`    | Date | Yes      | Appointment date (`YYYY-MM-DD`) |
+
+**Success Response — `200 OK`:**
+
+```json
+{
+  "success": true,
+  "message": "Available slots retrieved successfully",
+  "data": [
+    {
+      "id": "<uuid>",
+      "startTime": "09:00",
+      "endTime": "09:30"
+    },
+    {
+      "id": "<uuid>",
+      "startTime": "09:30",
+      "endTime": "10:00"
+    },
+    {
+      "id": "<uuid>",
+      "startTime": "10:00",
+      "endTime": "10:30"
+    }
+  ],
+  "timestamp": "<ISO timestamp>"
+}
+```
+
+**Error Responses:**
+
+| Status | Scenario                |
+| ------ | ----------------------- |
+| `400`  | Missing or invalid date |
+| `401`  | Unauthenticated         |
+| `403`  | Role not permitted      |
+| `404`  | Doctor not found        |
+
+
+
+---
+
+### 2.4 Patient Management
 
 ---
 
@@ -607,7 +890,7 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-### 2.4 Appointment Management
+### 2.5 Appointment Management
 
 ---
 
@@ -907,7 +1190,7 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-### 2.5 Consultation
+### 2.6 Consultation
 
 ---
 
@@ -1009,7 +1292,7 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-### 2.6 Dashboard
+### 2.7 Dashboard
 
 ---
 
