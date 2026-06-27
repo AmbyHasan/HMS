@@ -236,11 +236,17 @@ Defines the URL surface of the API. Each feature (auth, doctors, patients, appoi
 Reads the HTTP request, calls exactly one service method, and sends the HTTP response. Controllers are thin. They do not talk to the database or make decisions.
 
 #### Service Layer
+
 The heart of the application. Every business rule lives here:
+
 - "Can this time slot be booked?" → **Slot conflict check**
 - "Can this appointment be edited?" → **Status check (not cancelled)**
 - "Is this date in the past?" → **Date validation**
 - "Who is allowed to perform this action?" → **Role-specific guard**
+
+Before creating or rescheduling an appointment, the Service Layer checks whether another active appointment already exists for the same doctor, date, and time slot. This provides immediate validation feedback to the user.
+
+To guarantee data integrity, this rule is also enforced at the database level through a **unique constraint on `(doctor_id, appointment_date, time_slot)`**. This prevents duplicate bookings even if multiple requests are processed simultaneously.
 
 After a successful operation, the service also decides whether to publish a notification event.
 
@@ -391,6 +397,7 @@ A layered monolith separates the application into clearly defined responsibiliti
 ### Why PostgreSQL Instead of MongoDB?
 
 Hospital data is inherently relational. Doctors, patients, appointments, and consultations are all connected through well-defined relationships. PostgreSQL enforces referential integrity, supports transactions, and guarantees data consistency. A document database offers flexibility we do not need here and trades away structure we depend on.
+PostgreSQL also allows critical business rules to be enforced through database constraints. For example, a unique constraint on `(doctor_id, appointment_date, time_slot)` ensures that a doctor cannot have two appointments in the same time slot, even if multiple booking requests are processed concurrently. While the Service Layer performs validation to provide immediate feedback to users, the database acts as the final safeguard to maintain data integrity.
 
 ### Why Sequelize ORM?
 
