@@ -1545,7 +1545,9 @@ hospital-management-system/
 │   │   ├── doctor.controller.js
 │   │   ├── patient.controller.js
 │   │   ├── appointment.controller.js
-│   │   └── dashboard.controller.js
+│   │   ├── dashboard.controller.js
+|   |   └── availability.controller.js
+|   | 
 │   │
 │   ├── middlewares/
 │   │   ├── authenticate.js      # JWT verification middleware
@@ -1571,12 +1573,14 @@ hospital-management-system/
 │   ├── repositories/
 │   │   ├── user.repository.js
 │   │   ├── doctor.repository.js
+|   |   ├── availability.repository.js
 │   │   ├── patient.repository.js
 │   │   └── appointment.repository.js
 │   │
 │   ├── routes/
 │   │   ├── index.js             # Mounts all routers under /api/v1
 │   │   ├── auth.routes.js
+|   |   ├── availability.routes.js
 │   │   ├── doctor.routes.js
 │   │   ├── patient.routes.js
 │   │   ├── appointment.routes.js
@@ -1590,6 +1594,7 @@ hospital-management-system/
 │   │   ├── doctor.service.js
 │   │   ├── patient.service.js
 │   │   ├── appointment.service.js
+|   |   ├── availability.service.js
 │   │   ├── dashboard.service.js
 │   │   └── notification.service.js  # Builds and publishes SQS events
 │   │
@@ -1599,6 +1604,7 @@ hospital-management-system/
 │   └── validators/
 │       ├── auth.validator.js
 │       ├── doctor.validator.js
+|       ├── availability.validator.js   
 │       ├── patient.validator.js
 │       └── appointment.validator.js
 │
@@ -1758,6 +1764,11 @@ This matrix defines exactly which actions each role can perform, derived directl
 | Delete Doctor (Soft) | ✅ | ❌ | ❌ |
 | View Doctor List | ✅ | ❌ | ❌ |
 | View Doctor Details | ✅ | ❌ | ✅ (own) |
+| **Doctor Availability**	| | | |		
+|Create Availability	| ✅ |	❌ |	❌ |
+|View Availability	| ✅ |	❌ |	❌ | 
+|Update Availability	| ✅ |	❌ |	❌ |
+|Deactivate Availability	| ✅ |	❌ |	❌ |
 | **Patient Management** | | | |
 | Register Patient | ✅ | ✅ | ❌ |
 | Update Patient | ✅ | ✅ | ❌ |
@@ -1788,11 +1799,13 @@ This matrix defines exactly which actions each role can perform, derived directl
 |---|:---:|---|---|
 | **Authentication** | 3 | `POST /auth/login` · `POST /auth/logout` · `POST /auth/forgot-password`* | User login, logout, and optional password reset |
 | **Doctors** | 5 | `POST /doctors` · `GET /doctors` · `GET /doctors/:id` · `PUT /doctors/:id` · `DELETE /doctors/:id` | Full doctor lifecycle management for the Admin |
+| **Doctor Availability** |   5  | `POST /doctors/:id/availability` · `GET /doctors/:id/availability` · `PUT /availability/:id` · `DELETE /availability/:id` · `GET /doctors/:id/available-slots` | Configure weekly doctor schedules and retrieve available appointment slots |
 | **Patients** | 4 | `POST /patients` · `GET /patients` · `GET /patients/:id` · `PUT /patients/:id` | Patient registration and profile management |
 | **Appointments** | 6 | `POST /appointments` · `PUT /:id/reschedule` · `PUT /:id/cancel` · `GET /appointments` · `GET /appointments/today` · `GET /appointments/schedule` | Complete appointment booking lifecycle |
 | **Consultation** | 2 | `PUT /appointments/:id/notes` · `PUT /appointments/:id/complete` | Doctor-side consultation workflow |
 | **Dashboard** | 3 | `GET /dashboard/admin` · `GET /dashboard/receptionist` · `GET /dashboard/doctor` | Role-specific metric summaries |
-| **Total** | **23** | | |
+
+| **Total** | **28** | | |
 
 
 ---
