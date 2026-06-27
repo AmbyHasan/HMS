@@ -105,8 +105,6 @@ The `users` table and the `doctors` table serve two entirely different responsib
 - Hospital association — which hospital the doctor belongs to
 - Domain data — details relevant to scheduling and appointments
 
-Mixing authentication data with business domain data in a single table is a common design mistake. If the login mechanism changes (e.g., adding SSO or OAuth in the future), only the `users` table is affected — the `doctors` table and all its relationships remain untouched. Similarly, if a doctor's professional details are updated, the authentication credentials are not at risk. Keeping these concerns separate follows the Single Responsibility Principle at the database level and produces a cleaner, more maintainable schema.
-
 ---
 
 ### 3.3 `doctors`
@@ -167,7 +165,7 @@ The `patients` table stores the registration details of every patient. Patients 
 | `hospital_id` | Associates the patient with a hospital. Enables future multi-hospital separation of patient records. |
 | `registered_by` | Foreign key to `users`. Records which Receptionist registered this patient — important for accountability. |
 | `full_name` | Patient's full name as provided at registration. |
-| `date_of_birth` | Patient's date of birth. Although the BRD mentions age, storing `date_of_birth` is the correct database design choice — a person's age changes every year, which would require the value to be manually updated. Date of birth is a permanent, immutable fact. Age can always be calculated from `date_of_birth` at query time whenever required. DATE type is used since only the calendar date is needed, not a time component. |
+| `date_of_birth` | Date of birth is a permanent, immutable fact. Age can always be calculated from `date_of_birth` at query time whenever required.|
 | `gender` | Patient's gender. ENUM restricts values to the three defined options, preventing free-text inconsistencies. |
 | `mobile` | Patient's contact number. Used for appointment communication. |
 | `address` | Patient's residential address. Nullable — the BRD does not mark this as mandatory. |
@@ -215,8 +213,6 @@ The `doctor_availabilities` table defines which days of the week a doctor is ava
 ### 3.6 `time_slots`
 
 #### Why TimeSlot Is a Separate Table
-
-Storing time slots in a dedicated table rather than as a free-text field on the appointment is a deliberate design decision.
 
 **Without a dedicated TimeSlot table:**
 - Appointments would store arbitrary time values entered by the receptionist.
@@ -343,9 +339,9 @@ One hospital employs many users (Admins, Receptionists, and Doctors). Each user 
 Doctors belong to a hospital through their associated User account.
 
 Hospital
-    ↓
+    ->
 Users
-    ↓
+    ->
 Doctors
 
 This avoids storing the same hospital reference twice while preserving the rule that every doctor belongs to exactly one hospital.
@@ -429,7 +425,7 @@ The Service Layer performs a conflict check before inserting. If a record alread
 ### 5.2 Past Dates Cannot Be Booked
 
 **Database Enforcement:**  
-This rule cannot be enforced purely at the schema level with a static constraint because "past" is relative to the current date. It is enforced entirely at the **Service Layer**, which compares `appointment_date` against the current date before writing to the database.
+It is enforced entirely at the **Service Layer**, which compares `appointment_date` against the current date before writing to the database.
 
 ---
 
@@ -469,7 +465,7 @@ graph TD
     H -->|hasMany| P["Patient"]
     H -->|hasMany| A["Appointment"]
 
-    U -->|hasOne| D
+    U -->|hasOne| D["Doctor]
     D -->|belongsTo| U
     D -->|hasMany| DA["DoctorAvailability"]
     D -->|hasMany| A
@@ -690,15 +686,4 @@ Sequelize's `paranoid: true` option on a model definition activates soft delete 
 
 ---
 
-## Summary
 
-| Area | Decision | Rationale |
-|---|---|---|
-| 7 tables | No more, no less | Covers every BRD module without speculation |
-| UUID primary keys | All tables | Portable, non-sequential, safe for distributed future |
-| ENUM columns | role, gender, status (booked/completed/cancelled), day_of_week | Prevents invalid data at the type level |
-| Unique constraint on booking | `(doctor_id, appointment_date, time_slot_id)` | Core anti-double-booking enforcement |
-| `hospital_id` on every table | Forward-compatible | Multi-hospital support without schema changes |
-| Soft delete on 6 of 7 tables | `paranoid: true` in Sequelize | Data integrity, auditability, recoverability |
-| Consultation notes in Appointment | No separate table | BRD has no consultation module; notes belong to the appointment |
-| No permission or role tables | Role ENUM on User | Three fixed roles; no dynamic permissions required |
