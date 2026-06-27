@@ -681,9 +681,9 @@ When a record is soft-deleted:
 
 ```mermaid
 flowchart LR
-    A["Record Active\ndeleted_at = NULL"] -->|Soft Delete| B["Record Hidden\ndeleted_at = NOW()"]
+    A["Record active\ndeleted_at = NULL"] -->|Soft delete| B["Record hidden\ndeleted_at = NOW()"]
     B -->|Restore| A
-    B -->|Hard Delete\n(if ever needed)| C["Permanently Removed"]
+    B -->|Hard delete| C["Permanently\nremoved"]
 ```
 
 ### How Sequelize Paranoid Mode Supports It
