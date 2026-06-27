@@ -1,16 +1,11 @@
 # Hospital Management System — Database Design
-**Version:** 1.0 | **Status:** Pre-Implementation Design | **Audience:** Engineering Manager
 
 ---
 
 ## 1. Overview
 
-This document defines the complete database design for the Hospital Management System. It covers every table, column, relationship, constraint, and index — along with the reasoning behind each decision.
-
 **Database:** PostgreSQL  
 **ORM:** Sequelize  
-**Strategy:** Normalized relational design with soft deletes  
-**Guiding Principle:** Model only what the BRD requires. No speculative tables.
 
 ### Tables at a Glance
 
