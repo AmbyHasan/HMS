@@ -302,31 +302,6 @@ An Admin defines when a Doctor is available. The system uses that availability r
 ```mermaid
 flowchart TD
     A([Admin Sets Doctor Availability]) --> B[POST /api/v1/doctors/:id/availability]
-    B --> C[DoctorAvailability Record Created\nDay · Start Time · End Time · Slot Duration]
-    C --> D[System Generates Time Slots]
-    D --> E[TimeSlot Records Stored in Database]
-    E --> F([Slots Available for Booking])
-
-    F --> G([Receptionist Books Appointment])
-    G --> H[GET /api/v1/doctors/:id/slots?date=YYYY-MM-DD]
-    H --> I[Query Available Time Slots for That Day]
-    I --> J{Is Slot Already Booked?}
-    J -- Yes --> K([Slot Unavailable])
-    J -- No --> L([Slot Available for Selection])
-    L --> M[Receptionist Selects Slot]
-    M --> N[POST /api/v1/appointments]
-    N --> O([Appointment Created])
-```
-
----
-
-## 7. Soft Delete Flow
-
-The system uses soft delete across all entities. Records are never permanently removed from the database. Instead, a `deleted_at` timestamp is set on the record. All standard queries automatically exclude soft-deleted records.
-
-```mermaid
-flowchart TD
-    A([Admin Sets Doctor Availability]) --> B[POST /api/v1/doctors/:id/availability]
     B --> C[DoctorAvailability Created]
     C --> D[System Generates Time Slots]
     D --> E[TimeSlot Records Stored]
@@ -341,6 +316,30 @@ flowchart TD
     L --> M{Still Available?}
     M -- Yes --> N([Appointment Created])
     M -- No --> O([409 Conflict · Select Another Slot])
+```
+
+---
+
+## 7. Soft Delete Flow
+
+The system uses soft delete across all entities. Records are never permanently removed from the database. Instead, a `deleted_at` timestamp is set on the record. All standard queries automatically exclude soft-deleted records.
+
+```mermaid
+flowchart TD
+    A([Delete Request Received]) --> B{Entity Type}
+    B -- Doctor --> C[Set deleted_at on Doctor Record]
+    B -- Patient --> D[Set deleted_at on Patient Record]
+    B -- Appointment --> E[Set deleted_at on Appointment Record]
+
+    C --> F[Record Excluded from All Standard Queries]
+    D --> F
+    E --> F
+
+    F --> G{Query Type}
+    G -- Standard Query --> H([Records with deleted_at are Invisible])
+    G -- Admin Restore --> I[Fetch Record Including Soft Deleted]
+    I --> J[Clear deleted_at Timestamp]
+    J --> K([Record Restored and Visible Again])
 ```
 
 ### Why Soft Delete
