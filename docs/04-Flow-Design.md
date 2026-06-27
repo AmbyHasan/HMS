@@ -28,13 +28,12 @@ flowchart TD
     F --> G[View Doctor Availability]
     G --> H[Select Available Time Slot]
     H --> I{Slot Available?}
-    I -- No --> G
+    I -- No --> H
     I -- Yes --> J[Create Appointment]
     J --> K[Appointment Status: Booked]
     K --> L[Publish Message to SQS]
     L --> M[Confirmation Email Sent to Patient]
     K --> N([Appointment Confirmed])
-
 ```
 
 ---
