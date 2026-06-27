@@ -1,11 +1,9 @@
 # Hospital Management System — Architecture Document
-**Version:** 1.0 | **Status:** Pre-Implementation Design | **Audience:** Engineering Manager
+
 
 ---
 
 ## 1. Executive Summary
-
-This document presents the software architecture for a **Hospital Management System (HMS)** — a training project designed to demonstrate backend engineering fundamentals: API design, role-based access control, relational database modeling, and cloud deployment on AWS.
 
 The system serves three user roles — **Admin**, **Receptionist**, and **Doctor** — through a single monolithic web application backed by a RESTful Node.js API, a PostgreSQL database, and a lightweight notification pipeline using Amazon SQS and SMTP.
 
@@ -22,7 +20,6 @@ The system serves three user roles — **Admin**, **Receptionist**, and **Doctor
 | Async Notifications | Amazon SQS + SMTP | Decoupled email/SMS without blocking the API |
 | Future-readiness | Multi-hospital schema | One-to-many hospital support built into the data model |
 
-> This is a scoped, practical design. It is not over-engineered. Every component earns its place.
 
 ---
 
@@ -55,23 +52,12 @@ mindmap
       Mark Appointment Completed
 ```
 
-### 2.3 Core Business Rules (Non-Negotiable)
+### 2.3 Core Business Rules
 
 - A doctor **cannot** have two appointments in the same time slot
 - **Past dates** cannot be booked
 - **Cancelled** appointments cannot be edited or rescheduled
 - Every appointment carries a **status lifecycle**: `Scheduled → Completed | Cancelled`
-
-### 2.4 Scope Boundaries
-
-| In Scope | Out of Scope |
-|---|---|
-| Auth, RBAC, JWT | Multi-hospital UI (data model supports it; UI is out of scope) |
-| Doctor / Patient CRUD | Forgot Password (optional, time permitting) |
-| Appointment lifecycle | SMS notifications (bonus feature, BRD-optional) |
-| Consultation notes | Department module |
-| SQS + SMTP notifications | Super Admin role |
-| Admin + Role Dashboards | |
 
 ---
 
@@ -573,4 +559,3 @@ graph LR
     H -->|Email| I["User Inbox"]
 ```
 
-This architecture is clean, teachable, and honest. Every component has exactly one job. The layers are strict — data flows down, responses flow up. Notifications are decoupled and do not block the API. The deployment is a single EC2 instance with two PM2 processes and Nginx — simple enough to explain in a 15–20 minute design review, solid enough to extend when the project grows.
