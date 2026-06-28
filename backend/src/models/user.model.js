@@ -88,5 +88,14 @@ export default (sequelize) => {
     }
   );
 
+   User.associate = (models) => {
+    User.belongsTo(models.Hospital, { foreignKey: 'hospital_id', as: 'hospital' });
+    User.hasOne(models.Doctor, { foreignKey: 'user_id', as: 'doctorProfile' });
+    User.hasMany(models.Patient, { foreignKey: 'registered_by', as: 'registeredPatients' });
+    User.hasMany(models.Appointment, { foreignKey: 'booked_by', as: 'bookedAppointments' });
+  };
+
+  
+
   return User;
 };

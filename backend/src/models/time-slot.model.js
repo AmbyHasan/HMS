@@ -36,6 +36,9 @@ export default (sequelize) => {
     ],
   });
 
-
+  TimeSlot.associate = (models) => {
+    TimeSlot.belongsTo(models.DoctorAvailability, { foreignKey: 'doctor_availability_id', as: 'availability' });
+    TimeSlot.hasMany(models.Appointment, { foreignKey: 'time_slot_id', as: 'appointments' });
+  };
   return TimeSlot;
 };

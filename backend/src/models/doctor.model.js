@@ -43,6 +43,13 @@ export default (sequelize) => {
       timestamps: true,
     }
   );
+  
+   Doctor.associate = (models) => {
+    Doctor.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    Doctor.hasMany(models.DoctorAvailability, { foreignKey: 'doctor_id', as: 'availabilities' });
+    Doctor.hasMany(models.Appointment, { foreignKey: 'doctor_id', as: 'appointments' });
+  };
+
 
   return Doctor;
 };
