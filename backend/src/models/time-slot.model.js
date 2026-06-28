@@ -1,4 +1,5 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from "sequelize";
+
 
 export default (sequelize) => {
   const TimeSlot = sequelize.define('TimeSlot', {

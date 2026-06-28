@@ -1,4 +1,5 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from "sequelize";
+
 
 export default(sequelize) => {
   const Patient = sequelize.define('Patient', {

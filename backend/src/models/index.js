@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize";
-import sequelize from "../config/db.js";
+import sequelize from "../config/db/db.js";
 
 import HospitalModel from "./hospital.model.js";
 import UserModel from "./user.model.js";
 import DoctorModel from "./doctor.model.js";
 import PatientModel from "./patient.model.js";
-import DoctorAvailabilityModel from "./doctorAvailability.model.js";
-import TimeSlotModel from "./timeSlot.model.js";
+import DoctorAvailabilityModel from "./doctor-availability.model.js";
+import TimeSlotModel from "./time-slot.model.js";
 import AppointmentModel from "./appointment.model.js";
 
 const db = {};
