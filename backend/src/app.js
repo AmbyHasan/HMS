@@ -23,6 +23,8 @@ app.use(express.urlencoded({ extended: true }));  //it converts url encoded form
 app.use(cookieParser());
 
 
+app.use('/api/v1', routes);
+
 
 //api hit by the deployed url on render
 app.get("/", (req, res) => {
