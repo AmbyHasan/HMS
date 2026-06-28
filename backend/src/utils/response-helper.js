@@ -16,4 +16,4 @@ const sendError = (res, statusCode, message, errors = null) => {
   });
 };
 
-export default { sendSuccess, sendError };
+export { sendSuccess, sendError };

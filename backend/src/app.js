@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import  authRoutes from "./routes/auth.routes.js"
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));  //it converts url encoded form
 app.use(cookieParser());
 
 
-app.use('/api/v1', routes);
+app.use('/api/v1/auth', authRoutes);
 
 
 //api hit by the deployed url on render

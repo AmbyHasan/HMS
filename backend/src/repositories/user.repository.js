@@ -1,5 +1,6 @@
+import db from "../models/index.js";
 
-import {User, Hospital} from "../models";
+const { User, Hospital } = db;
 
 const findByEmail = async (email) => {
   return User.findOne({

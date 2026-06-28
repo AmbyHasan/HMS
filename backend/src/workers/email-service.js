@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import logger from "../utils/logger.js";
-import NOTIFICATION_TYPES from "../constants/notification-types";
+import NOTIFICATION_TYPES from "../constants/notification-types.js";
 
 //create an smtp connection
 const createTransporter = () => {

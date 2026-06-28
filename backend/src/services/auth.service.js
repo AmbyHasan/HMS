@@ -77,4 +77,26 @@ const forgotPassword = async (email) => {
   return null;
 };
 
+
+
+// Forgot Password
+//         │
+//         ▼
+// Generate JWT (expires in 1 hour)
+//         │
+//         ▼
+// Email JWT
+//         │
+//         ▼
+// User clicks link
+//         │
+//         ▼
+// Reset Password API
+//         │
+//         ▼
+// jwt.verify(token)
+//         │
+//         ▼
+// Password changed
+
 export  { login, logout, forgotPassword };

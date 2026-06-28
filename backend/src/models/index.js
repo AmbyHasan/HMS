@@ -26,6 +26,6 @@ Object.values(db).forEach((model) => {
 });
 
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+
 
 export default db;
