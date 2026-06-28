@@ -18,4 +18,4 @@ const getDayOfWeek = (dateStr) => {
   return days[date.getUTCDay()];
 };
 
-export default { getTodayDate, isPastDate, getDayOfWeek };
+export { getTodayDate, isPastDate, getDayOfWeek };
