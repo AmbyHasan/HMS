@@ -146,7 +146,6 @@ The `patients` table stores the registration details of every patient. Patients 
 | Column | Data Type | Nullable | Default | Constraint |
 |---|---|---|---|---|
 | `id` | `UUID` | NOT NULL | `gen_random_uuid()` | PRIMARY KEY |
-| `hospital_id` | `UUID` | NOT NULL | — | FOREIGN KEY → `hospitals.id` |
 | `registered_by` | `UUID` | NOT NULL | — | FOREIGN KEY → `users.id` |
 | `full_name` | `VARCHAR(100)` | NOT NULL | — | — |
 | `date_of_birth` | `DATE` | NOT NULL | — | — |
