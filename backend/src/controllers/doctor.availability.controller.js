@@ -2,6 +2,7 @@
 import { sendSuccess } from '../utils/response-helper.js';
 import * as availabilityService from "../services/doctor.availability.service.js";
 
+//by admin
 const createAvailability = async (req, res, next) => {
   try {
     const data = await availabilityService.createAvailability(
@@ -15,6 +16,8 @@ const createAvailability = async (req, res, next) => {
   }
 };
 
+
+//by receptionist
 const getDoctorAvailability = async (req, res, next) => {
   try {
     const data = await availabilityService.getDoctorAvailability(
@@ -27,6 +30,7 @@ const getDoctorAvailability = async (req, res, next) => {
   }
 };
 
+//by admin
 const updateAvailability = async (req, res, next) => {
   try {
     const data = await availabilityService.updateAvailability(req.params.id, req.body);
@@ -36,6 +40,8 @@ const updateAvailability = async (req, res, next) => {
   }
 };
 
+
+//by admin
 const deleteAvailability = async (req, res, next) => {
   try {
     await availabilityService.deleteAvailability(req.params.id);
@@ -45,6 +51,8 @@ const deleteAvailability = async (req, res, next) => {
   }
 };
 
+
+//by receptionist
 const getAvailableSlots = async (req, res, next) => {
   try {
     const data = await availabilityService.getAvailableSlots(

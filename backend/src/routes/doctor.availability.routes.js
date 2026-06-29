@@ -21,7 +21,7 @@ router.post(
 router.get(
   '/doctors/:id/availability',
   authenticate,
-  authorize(ROLES.ADMIN),
+  authorize(ROLES.ADMIN , ROLES.RECEPTIONIST),
   availabilityController.getDoctorAvailability
 );
 

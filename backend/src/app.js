@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import  authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.doctor.routes.js";
 import availabilityRoutes from "./routes/doctor.availability.routes.js";
+import patientRoutes from  "./routes/patient.routes.js";
+import errorHandler from "./middlewares/error-handler.middleware.js";
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use(cookieParser());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin/doctor' , adminRoutes);
 app.use('/api/v1/admin' , availabilityRoutes );
+app.use('/api/v1/patients' , patientRoutes );
 
 
 //api hit by the deployed url on render
@@ -51,5 +54,8 @@ app.get("/api/health", (req, res) => {
     uptime: `${Math.floor(process.uptime())}s`,  //tells the time since when the process started
   });
 });
+
+
+app.use(errorHandler);
 
 export default app;

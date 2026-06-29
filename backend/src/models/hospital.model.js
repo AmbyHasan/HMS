@@ -77,7 +77,6 @@ export default (sequelize) => {
 
     Hospital.associate = (models) => {
     Hospital.hasMany(models.User, { foreignKey: 'hospital_id', as: 'users' });
-    Hospital.hasMany(models.Patient, { foreignKey: 'hospital_id', as: 'patients' });
     Hospital.hasMany(models.Appointment, { foreignKey: 'hospital_id', as: 'appointments' });
   };
 

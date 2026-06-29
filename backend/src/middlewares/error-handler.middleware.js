@@ -1,4 +1,4 @@
-const logger = require('../utils/logger');
+import logger from "../utils/logger.js"
 
 const errorHandler = (err, req, res, next) => {
   logger.error(`${err.name || 'Error'}: ${err.message}`, {
@@ -6,6 +6,18 @@ const errorHandler = (err, req, res, next) => {
     path: req.path,
     method: req.method,
   });
+
+console.log("========== ERROR ==========");
+console.log("Name:", err.name);
+console.log("Message:", err.message);
+
+console.log("Parent:");
+console.dir(err.parent, { depth: null });
+
+console.log("Original:");
+console.dir(err.original, { depth: null });
+
+console.log("===========================");
 
   // sequelize unique constraint violation
   if (err.name === 'SequelizeUniqueConstraintError') {

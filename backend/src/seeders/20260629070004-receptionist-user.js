@@ -1,10 +1,10 @@
 "use strict";
 
 import bcrypt from "bcryptjs";
-//seeder for creating admin in the db
+
 export default {
   async up(queryInterface, Sequelize) {
-    // Fetch the first hospital
+    // fetch the first hospital
     const [hospitals] = await queryInterface.sequelize.query(`
       SELECT id
       FROM hospitals
@@ -24,10 +24,10 @@ export default {
     await queryInterface.bulkInsert("users", [
       {
         hospital_id: hospitalId,
-        full_name: "System Administrator",
-        email: "amberhasan237@gmail.com",
+        full_name: "Receptionist",
+        email: "receptionist@hospital.com",
         password: hashedPassword,
-        role: "admin",
+        role: "receptionist",
         is_active: true,
         created_at: new Date(),
         updated_at: new Date(),
@@ -38,7 +38,7 @@ export default {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete("users", {
-      email: "admin@hospital.com",
+      email: "receptionist@hospital.com",
     });
   },
 };
