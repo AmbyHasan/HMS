@@ -2,7 +2,7 @@
 import bcrypt from "bcryptjs";
 import ROLES from "../constants/roles.js";
 import * as userRepository from "../repositories/user.repository.js";
-import * as doctorRepository from "../repositories/doctor.respository.js"
+import * as doctorRepository from "../repositories/admin.respository.js"
 
 
 class AppError extends Error {
