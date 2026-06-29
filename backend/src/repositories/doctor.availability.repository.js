@@ -46,7 +46,7 @@ const createTimeSlots = async (availabilityId, slotTimes) => {
     slot_time,
     is_active: true,
   }));
-  return TimeSlot.bulkCreate(slots);
+  return TimeSlot.bulkCreate(slots ,{ returning: true });
 };
 
 const deactivateTimeSlots = async (availabilityId) => {

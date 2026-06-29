@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
 
-export default(sequelize) => {
+export default (sequelize) => {
   const Patient = sequelize.define('Patient', {
     id: {
       type: DataTypes.UUID,
@@ -17,6 +17,14 @@ export default(sequelize) => {
     full_name: {
       type: DataTypes.STRING(100),
       allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
     },
     date_of_birth: {
       type: DataTypes.DATEONLY,

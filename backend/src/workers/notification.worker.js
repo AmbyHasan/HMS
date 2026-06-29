@@ -60,10 +60,11 @@ const poll = async () => {
   try {
     result = await sqsClient.send(command); //recieve all msgs
   } catch (err) {
-    logger.error('SQS poll error:', err.message);
+      console.log(err);
+  }
     await sleep(5000);
     return;
-  }
+  
 
   const messages = result.Messages || [];
 

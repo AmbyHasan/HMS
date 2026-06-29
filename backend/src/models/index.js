@@ -8,6 +8,7 @@ import PatientModel from "./patient.model.js";
 import DoctorAvailabilityModel from "./doctor-availability.model.js";
 import TimeSlotModel from "./time-slot.model.js";
 import AppointmentModel from "./appointment.model.js";
+import ConsultationModel from "./consultation.model.js";
 
 const db = {};
 
@@ -18,6 +19,7 @@ db.Patient = PatientModel(sequelize);
 db.DoctorAvailability = DoctorAvailabilityModel(sequelize);
 db.TimeSlot = TimeSlotModel(sequelize);
 db.Appointment = AppointmentModel(sequelize);
+db.Consultation = ConsultationModel(sequelize);
 
 Object.values(db).forEach((model) => {
   if (typeof model.associate === "function") {

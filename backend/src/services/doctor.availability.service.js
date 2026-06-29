@@ -1,6 +1,6 @@
 import * as availabilityRepository from "../repositories/doctor.availability.repository.js";
 import * as appointmentRepository from "../repositories/appointment.repository.js";
-import * as adminRepostory from "../repositories/admin.doctor.repository.js";
+import * as adminRepository from "../repositories/admin.doctor.repository.js";
 import generateTimeSlots from "../utils/time-slot-generator.js";
 import {getTodayDate, isPastDate, getDayOfWeek } from "../utils/date-helper.js";
 
@@ -37,7 +37,11 @@ const createAvailability = async (doctorId, hospitalId, payload) => {
   });
 
   const slotTimes = generateTimeSlots(startTime, endTime, slotDuration);
-  await availabilityRepository.createTimeSlots(availability.id, slotTimes);
+
+const createdSlots = await availabilityRepository.createTimeSlots(
+  availability.id,
+  slotTimes
+);
 
   return {
     id: availability.id,
@@ -46,6 +50,10 @@ const createAvailability = async (doctorId, hospitalId, payload) => {
     startTime: availability.start_time,
     endTime: availability.end_time,
     slotDuration: availability.slot_duration,
+    slots: createdSlots.map((slot) => ({
+    id: slot.id,
+    slotTime: slot.slot_time,
+  })),
   };
 };
 

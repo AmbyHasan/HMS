@@ -1,8 +1,6 @@
-
-
 import db from '../models/index.js';
-const {Appointment, Doctor, Patient, TimeSlot, User}=db;
-import Op from 'sequelize';
+const {Appointment, Doctor, Patient, TimeSlot, User, Consultation}=db;
+import {Op}  from 'sequelize';
 
 const APPOINTMENT_INCLUDES = [
   {
@@ -14,13 +12,18 @@ const APPOINTMENT_INCLUDES = [
   {
     model: Patient,
     as: 'patient',
-    attributes: ['id', 'full_name', 'mobile'],
+    attributes: ['id', 'full_name', 'mobile' ,'email'],
   },
   {
     model: TimeSlot,
     as: 'timeSlot',
     attributes: ['id', 'slot_time'],
   },
+  {
+    model: Consultation,
+    as: "consultation",
+    attributes: ["id", "notes", "created_at"],
+  }
 ];
 
 const create = async (data) => {
@@ -75,8 +78,9 @@ const findByDoctorAndDate = async (doctorId, date) => {
   return Appointment.findAll({
     where,
     include: [
-      { model: Patient, as: 'patient', attributes: ['id', 'full_name', 'mobile', 'gender', 'date_of_birth'] },
+      { model: Patient, as: 'patient', attributes: ['id', 'full_name', 'mobile', 'gender', 'date_of_birth' ,'email'] },
       { model: TimeSlot, as: 'timeSlot', attributes: ['id', 'slot_time'] },
+      {model :Consultation , as : "consultation" , attributes: ['notes'] }
     ],
     order: [['appointment_date', 'ASC'], ['time_slot_id', 'ASC']],
   });

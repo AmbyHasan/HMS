@@ -60,16 +60,46 @@ const buildAppointmentBookedEmail = (payload) => ({
 });
 
 const buildAppointmentCancelledEmail = (payload) => ({
-  subject: 'Appointment Cancellation Notice - Hospital Management System',
+  subject: "Appointment Cancelled - Hospital Management System",
+
   html: `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #dc2626;">Appointment Cancelled</h2>
-      <p>Your appointment (ID: ${payload.appointmentId}) has been cancelled.</p>
-      <p>If you have questions, please contact the hospital reception.</p>
-      <p style="color: #6b7280; font-size: 12px;">This is an automated message from the Hospital Management System.</p>
+    <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto;">
+      <h2 style="color:#dc2626;">Appointment Cancelled</h2>
+
+      <p>Dear ${payload.patientName},</p>
+
+      <p>Your appointment has been cancelled.</p>
+
+      <table style="border-collapse:collapse;width:100%;">
+        <tr>
+          <td><strong>Doctor</strong></td>
+          <td>${payload.doctorName}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Date</strong></td>
+          <td>${payload.appointmentDate}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Time</strong></td>
+          <td>${payload.slotTime}</td>
+        </tr>
+      </table>
+
+      <p>If this cancellation was unexpected, please contact the hospital.</p>
     </div>
   `,
-  text: `Appointment Cancelled\n\nYour appointment (ID: ${payload.appointmentId}) has been cancelled.\n\nIf you have questions, please contact the hospital reception.`,
+
+  text: `
+Dear ${payload.patientName},
+
+Your appointment has been cancelled.
+
+Doctor: ${payload.doctorName}
+Date: ${payload.appointmentDate}
+Time: ${payload.slotTime}
+`,
 });
 
 const buildAppointmentRescheduledEmail = (payload) => ({

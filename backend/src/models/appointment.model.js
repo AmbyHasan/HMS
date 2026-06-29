@@ -88,6 +88,7 @@ export default (sequelize) => {
     Appointment.belongsTo(models.Patient, { foreignKey: 'patient_id', as: 'patient' });
     Appointment.belongsTo(models.TimeSlot, { foreignKey: 'time_slot_id', as: 'timeSlot' });
     Appointment.belongsTo(models.User, { foreignKey: 'booked_by', as: 'bookedBy' });
+    Appointment.hasOne(models.Consultation, { foreignKey: "appointment_id", as: "consultation",});
   };
 
   return Appointment;

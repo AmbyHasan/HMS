@@ -9,13 +9,14 @@ class AppError extends Error {
 
 //we are not storing hospital id with patient ,to keey user table as the single source of truth for hospital_id
   const registerPatient = async ( registeredBy, payload) => {
-   const { fullName, dateOfBirth, gender, mobile, address } = payload;
+   const { fullName, dateOfBirth, gender, mobile, address ,email} = payload;
 
 
   const patient = await patientRepository.create({
    
     registered_by: registeredBy,  //this entity exists in the user table from where we can extract the hospital id if needed
     full_name: fullName,
+    email,
     date_of_birth: dateOfBirth,
     gender,
     mobile,
@@ -26,6 +27,7 @@ class AppError extends Error {
     id: patient.id,
     fullName: patient.full_name,
     dateOfBirth: patient.date_of_birth,
+    email: patient.email,
     gender: patient.gender,
     mobile: patient.mobile,
     address: patient.address,
@@ -38,6 +40,7 @@ const getPatients = async (id) => {  //here id -> admin or receptionist id that 
   return patients.map((p) => ({
     id: p.id,
     fullName: p.full_name,
+    email: p.email,
     dateOfBirth: p.date_of_birth,
     gender: p.gender,
     mobile: p.mobile,
@@ -54,6 +57,7 @@ const getPatientById = async (id ,registered_by_id) => {
   return {
     id: patient.id,
     fullName: patient.full_name,
+    email:patient.email ,
     dateOfBirth: patient.date_of_birth,
     gender: patient.gender,
     mobile: patient.mobile,
@@ -72,6 +76,7 @@ const updatePatient = async (id, registered_by_id, payload) => {
   if (payload.fullName) updateData.full_name = payload.fullName;
   if (payload.mobile) updateData.mobile = payload.mobile;
   if (payload.address !== undefined) updateData.address = payload.address;
+  if(payload.email) updateData.email=payload.email;
 
   await patientRepository.update(patient, updateData);
 
@@ -80,6 +85,7 @@ const updatePatient = async (id, registered_by_id, payload) => {
   return {
     id: updated.id,
     fullName: updated.full_name,
+    email:updated.email,
     mobile: updated.mobile,
     address: updated.address,
   };

@@ -15,6 +15,14 @@ const createPatientValidator = [
       }
       return true;
     }),
+    body("email")
+  .trim()
+  .notEmpty()
+  .withMessage("Email is required.")
+  .bail()
+  .isEmail()
+  .withMessage("Invalid email address.")
+  ,
   body('gender')
     .notEmpty().withMessage('Gender is required.')
     .isIn(['male', 'female', 'other']).withMessage('Gender must be one of: male, female, other.'),
@@ -38,6 +46,10 @@ const updatePatientValidator = [
   body('address')
     .optional()
     .isString().withMessage('Address must be a string.'),
+  body("email")
+  .optional()
+  .isEmail()
+  .withMessage("Invalid email address.")
 ];
 
 const patientIdValidator = [

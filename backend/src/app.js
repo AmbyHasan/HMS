@@ -8,6 +8,7 @@ import adminRoutes from "./routes/admin.doctor.routes.js";
 import availabilityRoutes from "./routes/doctor.availability.routes.js";
 import patientRoutes from  "./routes/patient.routes.js";
 import errorHandler from "./middlewares/error-handler.middleware.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
 
 const app = express();
 
@@ -31,8 +32,9 @@ app.use(cookieParser());
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin/doctor' , adminRoutes);
-app.use('/api/v1/admin' , availabilityRoutes );
+app.use('/api/v1' , availabilityRoutes );
 app.use('/api/v1/patients' , patientRoutes );
+app.use('/api/v1/appointments' , appointmentRoutes);
 
 
 //api hit by the deployed url on render
