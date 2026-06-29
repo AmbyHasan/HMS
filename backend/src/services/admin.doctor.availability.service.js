@@ -1,6 +1,6 @@
-import * as availabilityRepository from "../repositories/admin.doctor.availability.repostory.js";
-import * as appointmentRepository from "../repositories/appointment.respository.js";
-import * as adminRepostory from "../repositories/admin.doctor.respository.js";
+import * as availabilityRepository from "../repositories/admin.doctor.availability.repository.js";
+import * as appointmentRepository from "../repositories/appointment.repository.js";
+import * as adminRepostory from "../repositories/admin.doctor.repository.js";
 import generateTimeSlots from "../utils/time-slot-generator.js";
 import {getTodayDate, isPastDate, getDayOfWeek } from "../utils/date-helper.js";
 

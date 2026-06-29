@@ -11,6 +11,7 @@ const createDoctor = async (req, res, next) => {
   }
 };
 
+//get all the doctors of a particular hospital
 const getDoctors = async (req, res, next) => {
   try {
     const data = await doctorService.getDoctors(req.user.hospitalId);
@@ -20,6 +21,7 @@ const getDoctors = async (req, res, next) => {
   }
 };
 
+//get a a single doctor by id
 const getDoctorById = async (req, res, next) => {
   try {
     const data = await doctorService.getDoctorById(req.params.id, req.user);
@@ -29,6 +31,7 @@ const getDoctorById = async (req, res, next) => {
   }
 };
 
+//upate a particular doctor 
 const updateDoctor = async (req, res, next) => {
   try {
     const data = await doctorService.updateDoctor(req.params.id, req.user.hospitalId, req.body);

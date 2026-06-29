@@ -1,8 +1,7 @@
-
 import bcrypt from "bcryptjs";
 import ROLES from "../constants/roles.js";
 import * as userRepository from "../repositories/user.repository.js";
-import * as doctorRepository from "../repositories/admin.doctor.respository.js"
+import * as doctorRepository from "../repositories/admin.doctor.repository.js"
 
 
 class AppError extends Error {
@@ -69,7 +68,7 @@ const getDoctorById = async (id, requestingUser) => {
     throw new AppError('Doctor not found.', 404);
   }
 
-  // Doctors can only view their own profile
+  // doctors can only view their own profile
   if (requestingUser.role === ROLES.DOCTOR) {
     const doctorProfile = await doctorRepository.findByUserId(requestingUser.id);
     if (!doctorProfile || doctorProfile.id !== id) {
@@ -92,12 +91,14 @@ const getDoctorById = async (id, requestingUser) => {
 };
 
 const updateDoctor = async (id, hospitalId, payload) => {
+  
   const doctor = await doctorRepository.findByIdWithHospital(id, hospitalId);
 
   if (!doctor) {
     throw new AppError('Doctor not found.', 404);
   }
-
+ 
+  //preparing the data that needs to be updated
   const doctorData = {};
   const userData = {};
 

@@ -16,9 +16,6 @@ const createDoctor = async (userData, doctorData) => {
   await t.rollback();
   throw err;
 
- 
-    await t.rollback();
-    throw err;
   }
 };
 
@@ -35,11 +32,11 @@ const findAll = async (hospitalId) => {
 
 const findById = async (id) => {
   return Doctor.findByPk(id, {
-    include: [{
+    include: [{   //include user associated with doctor
       model: User,
       as: 'user',
       attributes: ['id', 'full_name', 'email', 'hospital_id'],
-      include: [{ model: Hospital, as: 'hospital', attributes: ['id', 'name'] }],
+      include: [{ model: Hospital, as: 'hospital', attributes: ['id', 'name'] }],   //include hospital associated with user
     }],
   });
 };
@@ -60,13 +57,13 @@ const updateDoctor = async (doctor, user, doctorData, userData) => {
  
   const t = await sequelize.transaction();
   try {
-    if (userData && Object.keys(userData).length > 0) {
-      await user.update(userData, { transaction: t });
+    if (userData && Object.keys(userData).length > 0) {  //if the user data is not null or undefined and the userData has some key or info for updation
+      await user.update(userData, { transaction: t });  //execute the update inside transaction
     }
     if (doctorData && Object.keys(doctorData).length > 0) {
       await doctor.update(doctorData, { transaction: t });
     }
-    await t.commit();
+    await t.commit();  //commit the transaction
   } catch (err) {
     await t.rollback();
     throw err;
