@@ -36,6 +36,8 @@ mindmap
   root((HMS))
     Admin
       Manage Doctors
+        Doctor CRUD
+        Doctor Availability
       Manage Patients
       View All Appointments
       Dashboard
