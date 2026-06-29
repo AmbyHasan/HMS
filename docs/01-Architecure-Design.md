@@ -355,7 +355,7 @@ graph TD
         end
 
         subgraph PG["PostgreSQL"]
-            DB["hms_db\n(Internal — not exposed to internet)"]
+            DB["hms_db"]
         end
     end
 
