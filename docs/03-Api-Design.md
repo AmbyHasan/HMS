@@ -1799,11 +1799,11 @@ This matrix defines exactly which actions each role can perform, derived directl
 |---|:---:|---|---|
 | **Authentication** | 3 | `POST /auth/login` · `POST /auth/logout` · `POST /auth/forgot-password`* | User login, logout, and optional password reset |
 | **Doctors** | 5 | `POST /doctors` · `GET /doctors` · `GET /doctors/:id` · `PUT /doctors/:id` · `DELETE /doctors/:id` | Full doctor lifecycle management for the Admin |
-| **Doctor Availability** |   5  | `POST /doctors/:id/availability` · `GET /doctors/:id/availability` · `PUT /availability/:id` · `DELETE /availability/:id` · `GET /doctors/:id/available-slots` | Configure weekly doctor schedules and retrieve available appointment slots |
-| **Patients** | 4 | `POST /patients` · `GET /patients` · `GET /patients/:id` · `PUT /patients/:id` | Patient registration and profile management |
-| **Appointments** | 6 | `POST /appointments` · `PUT /:id/reschedule` · `PUT /:id/cancel` · `GET /appointments` · `GET /appointments/today` · `GET /appointments/schedule` | Complete appointment booking lifecycle |
+| **Doctor Availability** |   5  | `POST /doctors/:id/availability` · `GET /doctors/:id/availability` · `PUT /availability/:id` · `DELETE /availability/:id` · `GET /doctors/:id/available-slots` | Configure weekly doctor schedules and retrieve available appointment slots, done by admin |
+| **Patients** | 4 | `POST /patients` · `GET /patients` · `GET /patients/:id` · `PUT /patients/:id` | Patient registration and profile management, done my receptionist |
+| **Appointments** | 6 | `POST /appointments` · `PUT /:id/reschedule` · `PUT /:id/cancel` · `GET /appointments` · `GET /appointments/today` · `GET /appointments/schedule` | Complete appointment booking lifecycle managed by receptionist |
 | **Consultation** | 2 | `PUT /appointments/:id/notes` · `PUT /appointments/:id/complete` | Doctor-side consultation workflow |
-| **Dashboard** | 3 | `GET /dashboard/admin` · `GET /dashboard/receptionist` · `GET /dashboard/doctor` | Role-specific metric summaries |
+| **Dashboard** | 3 | `GET /dashboard/admin` · `GET /dashboard/receptionist` · `GET /dashboard/doctor` | Role-specific metric summaries, for admin |
 
 | **Total** | **28** | | |
 
