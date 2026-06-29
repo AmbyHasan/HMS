@@ -25,7 +25,7 @@ export default {
       {
         hospital_id: hospitalId,
         full_name: "System Administrator",
-        email: "admin@hospital.com",
+        email: "amberhasan237@gmail.com",
         password: hashedPassword,
         role: "admin",
         is_active: true,

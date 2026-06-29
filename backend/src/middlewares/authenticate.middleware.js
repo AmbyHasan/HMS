@@ -14,6 +14,7 @@ const authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    //here we are attaching some info with the request
     req.user = {
       id: decoded.id,
       role: decoded.role,

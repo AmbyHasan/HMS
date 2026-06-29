@@ -1,9 +1,7 @@
-
-
 import {sendSuccess} from "../utils/response-helper.js";
 import doctorService from "../services/doctor.service.js";
 
-
+//all of these can only be performed by an admin
 const createDoctor = async (req, res, next) => {
   try {
     const data = await doctorService.createDoctor(req.user.hospitalId, req.body);
