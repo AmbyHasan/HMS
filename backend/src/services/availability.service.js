@@ -1,8 +1,9 @@
 import * as availabilityRepository from "../repositories/availability.repostory.js";
 import * as appointmentRepository from "../repositories/appointment.respository.js";
-import * as doctorRepository from "../repositories/doctor.respository.js";
+import * as adminRepostory from "../repositories/admin.respository.js";
 import generateTimeSlots from "../utils/time-slot-generator.js";
 import {getTodayDate, isPastDate, getDayOfWeek } from "../utils/date-helper.js";
+
 
 class AppError extends Error {
   constructor(message, statusCode) {
@@ -14,7 +15,7 @@ class AppError extends Error {
 const createAvailability = async (doctorId, hospitalId, payload) => {
   const { dayOfWeek, startTime, endTime, slotDuration } = payload;
 
-  const doctor = await doctorRepository.findByIdWithHospital(doctorId, hospitalId);
+  const doctor = await adminRepository.findByIdWithHospital(doctorId, hospitalId);
   if (!doctor) {
     throw new AppError('Doctor not found.', 404);
   }
@@ -48,7 +49,7 @@ const createAvailability = async (doctorId, hospitalId, payload) => {
 };
 
 const getDoctorAvailability = async (doctorId, hospitalId) => {
-  const doctor = await doctorRepository.findByIdWithHospital(doctorId, hospitalId);
+  const doctor = await adminRepository.findByIdWithHospital(doctorId, hospitalId);
   if (!doctor) {
     throw new AppError('Doctor not found.', 404);
   }
@@ -141,7 +142,7 @@ const getAvailableSlots = async (doctorId, hospitalId, date) => {
     throw new AppError('Cannot retrieve slots for a past date.', 400);
   }
 
-  const doctor = await doctorRepository.findByIdWithHospital(doctorId, hospitalId);
+  const doctor = await adminRepository.findByIdWithHospital(doctorId, hospitalId);
   if (!doctor) {
     throw new AppError('Doctor not found.', 404);
   }

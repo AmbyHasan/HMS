@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/doctors' , adminRoutes);
+app.use('/api/v1/admin/doctor' , adminRoutes);
 app.use('/api/v1' , availabilityRoutes );
 
 
