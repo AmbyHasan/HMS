@@ -1,4 +1,4 @@
-import * as availabilityRepository from "../repositories/admin.doctor.availability.repository.js";
+import * as availabilityRepository from "../repositories/doctor.availability.repository.js";
 import * as appointmentRepository from "../repositories/appointment.repository.js";
 import * as adminRepostory from "../repositories/admin.doctor.repository.js";
 import generateTimeSlots from "../utils/time-slot-generator.js";
@@ -21,6 +21,7 @@ const createAvailability = async (doctorId, hospitalId, payload) => {
   }
 
   const dayLower = dayOfWeek.toLowerCase();
+  //checking if the availability for that day already exists
   const existing = await availabilityRepository.findByDoctorAndDay(doctorId, dayLower);
   if (existing) {
     throw new AppError(`Availability already exists for ${dayOfWeek}. Update the existing record instead.`, 409);
@@ -66,6 +67,8 @@ const getDoctorAvailability = async (doctorId, hospitalId) => {
   }));
 };
 
+
+//before updating we will check for the existing appointments , if they exis availability will not be updated.
 const updateAvailability = async (availabilityId, payload) => {
   const availability = await availabilityRepository.findByIdRaw(availabilityId);
   if (!availability) {

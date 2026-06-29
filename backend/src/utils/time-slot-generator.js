@@ -8,7 +8,7 @@ const generateTimeSlots = (startTime, endTime, slotDuration) => {
   const [endHour, endMin] = endTime.split(':').map(Number);
 
 
-  //converting into minutes for comaprison
+  //converting into minutes for comparison
   let currentMinutes = startHour * 60 + startMin;
   const endMinutes = endHour * 60 + endMin;
 

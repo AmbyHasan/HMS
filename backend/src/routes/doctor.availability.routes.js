@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as availabilityController from "../controllers/admin.availability.controller.js";
+import * as availabilityController from "../controllers/doctor.availability.controller.js";
 import authorize from '../middlewares/authorize.middleware.js';
 import validate from '../middlewares/validate.middleware.js';
 import { createAvailabilityValidator , updateAvailabilityValidator , availabilityIdValidator , availableSlotsValidator } from '../validators/availability.validator.js';
