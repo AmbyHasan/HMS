@@ -163,13 +163,13 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-#### POST `/api/v1/doctors`
+#### POST `/api/v1/admin/doctor`
 
 | Field | Detail |
 |---|---|
 | **Purpose** | Creates a new doctor record and the associated user login account. |
 | **Method** | `POST` |
-| **Endpoint** | `/api/v1/doctors` |
+| **Endpoint** | `/api/v1/admin/doctor` |
 | **Auth Required** | Yes |
 | **Allowed Roles** | Admin |
 
@@ -224,7 +224,7 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-#### GET `/api/v1/doctors`
+#### GET `/api/v1/admin/doctor`
 
 | Field | Detail |
 |---|---|
@@ -265,13 +265,13 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-#### GET `/api/v1/doctors/:id`
+#### GET `/api/v1/admin/doctor/:id`
 
 | Field | Detail |
 |---|---|
 | **Purpose** | Returns the full profile of a specific doctor by ID. |
 | **Method** | `GET` |
-| **Endpoint** | `/api/v1/doctors/:id` |
+| **Endpoint** | `/api/v1/admin/doctor/:id` |
 | **Auth Required** | Yes |
 | **Allowed Roles** | Admin, Doctor (own profile only) |
 
@@ -313,13 +313,13 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-#### PUT `/api/v1/doctors/:id`
+#### PUT `/api/v1/admin/doctor/:id`
 
 | Field | Detail |
 |---|---|
 | **Purpose** | Updates an existing doctor's professional details. |
 | **Method** | `PUT` |
-| **Endpoint** | `/api/v1/doctors/:id` |
+| **Endpoint** | `/api/v1/admin/doctor/:id` |
 | **Auth Required** | Yes |
 | **Allowed Roles** | Admin |
 
@@ -374,13 +374,13 @@ Before listing individual APIs, the following principles govern the entire API d
 
 ---
 
-#### DELETE `/api/v1/doctors/:id`
+#### DELETE `/api/v1/admin/doctor/:id`
 
 | Field | Detail |
 |---|---|
 | **Purpose** | Soft-deletes a doctor by setting `deleted_at`. The doctor's historical appointments and records are preserved. |
 | **Method** | `DELETE` |
-| **Endpoint** | `/api/v1/doctors/:id` |
+| **Endpoint** | `/api/v1/admin/doctor/:id` |
 | **Auth Required** | Yes |
 | **Allowed Roles** | Admin |
 
