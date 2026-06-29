@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as availabilityController from "../controllers/availability.controller.js";
+import * as availabilityController from "../controllers/admin.availability.controller.js";
 import authorize from '../middlewares/authorize.middleware.js';
 import validate from '../middlewares/validate.middleware.js';
 import { createAvailabilityValidator , updateAvailabilityValidator , availabilityIdValidator , availableSlotsValidator } from '../validators/availability.validator.js';
@@ -36,7 +36,7 @@ router.get(
 
 // standalone availability resource routes
 router.put(
-  '/availability/:id',
+  '/doctors/availability/:id',
   authenticate,
   authorize(ROLES.ADMIN),
   updateAvailabilityValidator,

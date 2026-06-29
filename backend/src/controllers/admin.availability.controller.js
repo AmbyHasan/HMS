@@ -1,6 +1,6 @@
 
 import { sendSuccess } from '../utils/response-helper.js';
-import * as availabilityService from "../services/availability.service.js";
+import * as availabilityService from "../services/admin.doctor.availability.service.js";
 
 const createAvailability = async (req, res, next) => {
   try {

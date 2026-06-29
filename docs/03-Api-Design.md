@@ -417,13 +417,13 @@ This module allows an Admin to configure a doctor's weekly working schedule. Bas
 
 ---
 
-#### POST `/api/v1/doctors/:id/availability`
+#### POST `/api/v1/admin/doctors/:id/availability`
 
 | Field             | Detail                                                                                                                                                                                                                  |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Purpose**       | Creates a weekly availability schedule for a doctor. After the availability is successfully created, the system automatically generates appointment time slots based on the configured working hours and slot duration. |
 | **Method**        | `POST`                                                                                                                                                                                                                  |
-| **Endpoint**      | `/api/v1/doctors/:id/availability`                                                                                                                                                                                      |
+| **Endpoint**      | `/api/v1/admin/doctors/:id/availability`                                                                                                                                                                                      |
 | **Auth Required** | Yes                                                                                                                                                                                                                     |
 | **Allowed Roles** | Admin                                                                                                                                                                                                                   |
 
@@ -481,13 +481,13 @@ This module allows an Admin to configure a doctor's weekly working schedule. Bas
 
 ---
 
-#### GET `/api/v1/doctors/:id/availability`
+#### GET `/api/v1/admin/doctors/:id/availability`
 
 | Field             | Detail                                                                         |
 | ----------------- | ------------------------------------------------------------------------------ |
 | **Purpose**       | Returns all configured weekly availability schedules for the specified doctor. |
 | **Method**        | `GET`                                                                          |
-| **Endpoint**      | `/api/v1/doctors/:id/availability`                                             |
+| **Endpoint**      | `/api/v1/admin/:id/availability`                         |
 | **Auth Required** | Yes                                                                            |
 | **Allowed Roles** | Admin                                                                          |
 
@@ -533,13 +533,13 @@ This module allows an Admin to configure a doctor's weekly working schedule. Bas
 
 ---
 
-#### PUT `/api/v1/availability/:id`
+#### PUT `/api/v1/admin/availability/:id`
 
 | Field             | Detail                                                                                                                                                                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Purpose**       | Updates an existing doctor availability schedule. After a successful update, the system regenerates future appointment time slots. Availability cannot be updated if future appointments already exist for that schedule. |
 | **Method**        | `PUT`                                                                                                                                                                                                                     |
-| **Endpoint**      | `/api/v1/availability/:id`                                                                                                                                                                                                |
+| **Endpoint**      | `/api/v1/admin/availability/:id`                                                                                                                                                                                                |
 | **Auth Required** | Yes                                                                                                                                                                                                                       |
 | **Allowed Roles** | Admin                                                                                                                                                                                                                     |
 
@@ -594,13 +594,13 @@ This module allows an Admin to configure a doctor's weekly working schedule. Bas
 
 ---
 
-#### DELETE `/api/v1/availability/:id`
+#### DELETE `/api/v1/admin/availability/:id`
 
 | Field             | Detail                                                                                                                                                                |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Purpose**       | Deactivates a doctor's availability schedule. Historical appointment records remain unchanged and no new appointments can be booked against the deactivated schedule. |
 | **Method**        | `DELETE`                                                                                                                                                              |
-| **Endpoint**      | `/api/v1/availability/:id`                                                                                                                                            |
+| **Endpoint**      | `/api/v1/admin/availability/:id`                                                                                                                                            |
 | **Auth Required** | Yes                                                                                                                                                                   |
 | **Allowed Roles** | Admin                                                                                                                                                                 |
 
@@ -632,13 +632,13 @@ This module allows an Admin to configure a doctor's weekly working schedule. Bas
 
 ---
 
-#### GET `/api/v1/doctors/:id/available-slots`
+#### GET `/api/v1/admin/doctors/:id/available-slots`
 
 | Field             | Detail                                                                                                                                      |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Purpose**       | Returns all available appointment time slots for a doctor on the specified date. Booked slots are automatically excluded from the response. |
 | **Method**        | `GET`                                                                                                                                       |
-| **Endpoint**      | `/api/v1/doctors/:id/available-slots`                                                                                                       |
+| **Endpoint**      | `/api/v1/admin/doctors/:id/available-slots`                                                                                                       |
 | **Auth Required** | Yes                                                                                                                                         |
 | **Allowed Roles** | Admin, Receptionist                                                                                                                         |
 

@@ -4,8 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import  authRoutes from "./routes/auth.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
-import availabilityRoutes from "./routes/availability.routes.js";
+import adminRoutes from "./routes/admin.doctor.routes.js";
+import availabilityRoutes from "./routes/admin.doctor.availability.routes.js";
 
 const app = express();
 
@@ -29,7 +29,7 @@ app.use(cookieParser());
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin/doctor' , adminRoutes);
-app.use('/api/v1' , availabilityRoutes );
+app.use('/api/v1/admin' , availabilityRoutes );
 
 
 //api hit by the deployed url on render

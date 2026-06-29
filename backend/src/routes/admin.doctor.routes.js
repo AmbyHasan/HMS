@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as adminController from "../controllers/admin.controller.js"
+import * as adminController from "../controllers/admin.doctor.controller.js"
 import authenticate from '../middlewares/authenticate.middleware.js';
 import authorize from '../middlewares/authorize.middleware.js';
 import validate from "../middlewares/validate.middleware.js"
