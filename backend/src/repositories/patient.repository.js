@@ -15,6 +15,17 @@ const findAll = async (registered_by_id) => {
   });
 };
 
+const findAllByHospital = async (hospitalId) => {
+   return  Patient.findAll({
+    include: [{
+      model: User,
+      as: 'user',
+      where: { hospital_id: hospitalId, is_active: true },
+      attributes: ['id', 'full_name', 'email', 'hospital_id'],
+    }],
+  });
+}
+
 const findById = async (id) => {
   return Patient.findByPk(id);
 };
@@ -27,4 +38,4 @@ const update = async (patient, data) => {
   return patient.update(data);
 };
 
-export { create, findAll, findById, findByIdAndRegistrarId, update };
+export { create, findAll, findById, findByIdAndRegistrarId,findAllByHospital , update };

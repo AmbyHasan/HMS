@@ -52,6 +52,7 @@ export default (sequelize) => {
   Patient.associate = (models) => {
     Patient.belongsTo(models.User, { foreignKey: 'registered_by', as: 'registeredBy' });
     Patient.hasMany(models.Appointment, { foreignKey: 'patient_id', as: 'appointments' });
+    
   };
 
   return Patient;

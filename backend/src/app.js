@@ -9,6 +9,7 @@ import availabilityRoutes from "./routes/doctor.availability.routes.js";
 import patientRoutes from  "./routes/patient.routes.js";
 import errorHandler from "./middlewares/error-handler.middleware.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.use('/api/v1/admin/doctor' , adminRoutes);
 app.use('/api/v1' , availabilityRoutes );
 app.use('/api/v1/patients' , patientRoutes );
 app.use('/api/v1/appointments' , appointmentRoutes);
-
+app.use('/api/v1/dashboard' ,  dashboardRoutes);
 
 //api hit by the deployed url on render
 app.get("/", (req, res) => {
