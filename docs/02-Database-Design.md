@@ -141,27 +141,24 @@ A doctor's hospital is derived through the associated User record rather than be
 ### 3.4 `patients`
 
 **Purpose:**  
-The `patients` table stores the registration details of every patient. Patients do not log in — they are managed by Receptionists. The `registered_by` column tracks which Receptionist created the record.
+The `patients` table stores the registration details of every patient. Patients do not log in—they are managed by Receptionists. Each patient record stores the User (`registered_by`) who registered it, allowing the patient's hospital to be derived through the associated User (`users.hospital_id`) without storing a separate hospital reference.
 
 | Column | Data Type | Nullable | Default | Constraint |
 |---|---|---|---|---|
 | `id` | `UUID` | NOT NULL | `gen_random_uuid()` | PRIMARY KEY |
 | `registered_by` | `UUID` | NOT NULL | — | FOREIGN KEY → `users.id` |
 | `full_name` | `VARCHAR(100)` | NOT NULL | — | — |
+| `email` | `VARCHAR(150)` | NOT NULL | — | UNIQUE |
 | `date_of_birth` | `DATE` | NOT NULL | — | — |
 | `gender` | `ENUM('male', 'female', 'other')` | NOT NULL | — | — |
 | `mobile` | `VARCHAR(20)` | NOT NULL | — | — |
 | `address` | `TEXT` | NULL | `NULL` | — |
-| `created_at` | `TIMESTAMP` | NOT NULL | `NOW()` | — |
-| `updated_at` | `TIMESTAMP` | NOT NULL | `NOW()` | — |
-| `deleted_at` | `TIMESTAMP` | NULL | `NULL` | Soft Delete |
 
 **Column Rationale:**
 
 | Column | Why It Exists |
 |---|---|
 | `id` | UUID primary key for the patient record. |
-| `hospital_id` | Associates the patient with a hospital. Enables future multi-hospital separation of patient records. |
 | `registered_by` | Foreign key to `users`. Records which Receptionist registered this patient — important for accountability. |
 | `full_name` | Patient's full name as provided at registration. |
 | `date_of_birth` | Date of birth is a permanent, immutable fact. Age can always be calculated from `date_of_birth` at query time whenever required.|
@@ -305,7 +302,6 @@ The `appointments` table is the operational heart of the system. It records ever
 ```mermaid
 erDiagram
     HOSPITALS ||--o{ USERS : "employs"
-    HOSPITALS ||--o{ PATIENTS : "registers"
     HOSPITALS ||--o{ APPOINTMENTS : "hosts"
 
     USERS ||--|| DOCTORS : "has profile"
@@ -346,10 +342,19 @@ This avoids storing the same hospital reference twice while preserving the rule 
 
 ---
 
-#### Hospital → Patients `(One-to-Many)`
-One hospital registers many patients. Each patient is associated with one hospital.  
-This relationship enables the future multi-hospital query: "Show me all patients registered at Hospital X."  
-`hospitals.id` ← `patients.hospital_id`
+#### Hospital → Patients (Indirect Relationship)
+
+Patients are associated with a hospital through the User who registered them.
+
+```text
+Hospital
+    ↓
+Users
+    ↓
+Patients
+```
+
+This avoids storing a redundant `hospital_id` in the `patients` table while still allowing hospital-specific patient queries through the associated User.
 
 ---
 
@@ -440,8 +445,9 @@ The Service Layer checks `appointments.status` before allowing any update. If `s
 **Database Design Enforcement:**  
 The schema is designed to support multiple hospitals without structural changes. Hospital ownership is maintained either directly or indirectly:
 
-- `users`, `patients`, and `appointments` store a direct `hospital_id` reference.
-- Doctors inherit their hospital association through the related User record (`users.hospital_id`) instead of storing a separate `hospital_id`.
+- `users` and `appointments` store a direct `hospital_id` reference.
+- Patients inherit their hospital association through the User who registered them (`registered_by → users.hospital_id`).
+- Doctors inherit their hospital association through their associated User record (`user_id → users.hospital_id`).
 - This design avoids redundant data while ensuring every business entity belongs to exactly one hospital.
 
 When the application is extended to support multiple hospitals, all hospital-scoped queries can be implemented without modifying the database schema.
@@ -465,10 +471,10 @@ This section describes which associations will be defined in Sequelize and why e
 ```mermaid
 graph TD
     H["Hospital"] -->|hasMany| U["User"]   
-    H -->|hasMany| P["Patient"]
     H -->|hasMany| A["Appointment"]
 
     U -->|hasOne| D["Doctor"]
+    U -->|hasMany| P["Patient"]
     D -->|belongsTo| U
     D -->|hasMany| DA["DoctorAvailability"]
     D -->|hasMany| A
@@ -479,7 +485,7 @@ graph TD
     TS -->|belongsTo| DA
     TS -->|hasMany| A
 
-    P -->|belongsTo| H
+    P -->|belongsTo| U
     P -->|hasMany| A
 
     A -->|belongsTo| D
@@ -523,7 +529,6 @@ Indexes are created only where query performance justifiably requires them. Over
 | `idx_users_hospital_id` | `users` | `hospital_id` | Standard | Fetch all users in a hospital (Admin management screen). |
 | `idx_doctors_user_id` | `doctors` | `user_id` | UNIQUE | One-to-one join from User to Doctor profile. High-frequency lookup at login. |
 | `idx_patients_mobile` | `patients` | `mobile` | Standard | Receptionist searches for a patient by phone number before booking. |
-| `idx_patients_hospital_id` | `patients` | `hospital_id` | Standard | Fetch all patients registered at a hospital. |
 | `idx_appointments_booking_key` | `appointments` | `(doctor_id, appointment_date, time_slot_id)` | UNIQUE | The slot conflict check. This index is also the unique constraint — it prevents double-booking at the database level and accelerates the availability query. |
 | `idx_appointments_doctor_date` | `appointments` | `(doctor_id, appointment_date)` | Standard | Fetch a doctor's schedule for a specific date (Doctor dashboard: Today's Schedule). |
 | `idx_appointments_patient_id` | `appointments` | `patient_id` | Standard | Fetch all appointments for a patient (Appointment History). |
@@ -629,7 +634,6 @@ erDiagram
 
     HOSPITALS ||--o{ USERS : "employs"
     HOSPITALS ||--o{ DOCTORS : "has"
-    HOSPITALS ||--o{ PATIENTS : "registers"
     HOSPITALS ||--o{ APPOINTMENTS : "hosts"
     USERS ||--|| DOCTORS : "has profile"
     USERS ||--o{ PATIENTS : "registered_by"
@@ -666,13 +670,6 @@ flowchart LR
     B -->|Hard delete| C["Permanently\nremoved"]
 ```
 
-### How Sequelize Paranoid Mode Supports It
-
-Sequelize's `paranoid: true` option on a model definition activates soft delete behaviour automatically:
-- `Model.destroy()` sets `deleted_at` instead of issuing a `DELETE` statement.
-- All `findAll`, `findOne`, `findByPk` queries automatically filter out records where `deleted_at IS NOT NULL`.
-- `Model.restore()` resets `deleted_at` to `NULL`.
-- To query including soft-deleted records (e.g., for admin reporting), `{ paranoid: false }` is passed as a query option.
 
 ### Which Tables Use Soft Delete
 
