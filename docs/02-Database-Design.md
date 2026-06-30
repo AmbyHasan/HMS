@@ -143,11 +143,10 @@ The `doctor_availabilities` table defines a doctor's weekly working schedule. Ea
 
 | Column | Why It Exists |
 |---|---|
-
 | `start_time` | The time the doctor begins consultations on this day (e.g., 09:00). |
 | `end_time` | The time the doctor ends consultations on this day (e.g., 13:00). |
-| `slot_duration` | Duration of each appointment slot in minutes (e.g., 15, 20, 30, 45, 60). This value drives how time slots are generated from the availability window. For example: `start_time = 09:00`, `end_time = 12:00`, `slot_duration = 30` generates slots at 09:00, 09:30, 10:00, 10:30, 11:00, 11:30. Stored as INTEGER for simplicity. Different doctors can have different consultation durations without any structural change to the schema. |
-| `is_active` | Allows a specific day's availability to be disabled (e.g., doctor is on leave on Mondays) without deleting the record. |
+| `slot_duration` | Determines the duration of each appointment slot and is used to automatically generate bookable time slots from the availability window. Different doctors can have different slot durations without requiring any schema changes. |
+| `is_active` | Allows a doctor's availability for a specific day to be temporarily disabled without deleting the record (e.g., doctor is on leave). |
 
 ---
 
