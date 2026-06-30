@@ -37,7 +37,7 @@ const findConflict = async (doctorId, appointmentDate, timeSlotId, excludeId = n
     time_slot_id: timeSlotId,
     status: 'booked',
   };
-  if (excludeId) where.id = { [Op.ne]: excludeId };
+  if (excludeId) where.id = { [Op.ne]: excludeId };   //check if anyother appt apart from current appt has this slot
   return Appointment.findOne({ where });
 };
 

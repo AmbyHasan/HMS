@@ -2,7 +2,9 @@ import { SendMessageCommand } from "@aws-sdk/client-sqs";
 import { sqsClient, SQS_QUEUE_URL } from "../config/sqs.js";
 import logger from "../utils/logger.js";
 
-export const publish = async (message) => {
+//this is responsible for inserting the message inside the queue
+
+export const publish = async (message) => {  //HERE MESSAGE CONTAINS THE { type , payload }
   if (!SQS_QUEUE_URL) {
     logger.warn("SQS_QUEUE_URL is not configured. Skipping notification publish.");
     return;
@@ -10,7 +12,7 @@ export const publish = async (message) => {
 
   const command = new SendMessageCommand({
     QueueUrl: SQS_QUEUE_URL,
-    MessageBody: JSON.stringify(message),
+    MessageBody: JSON.stringify(message),   //converting JSON into JSON string
     MessageAttributes: {
       EventType: {
         DataType: "String",

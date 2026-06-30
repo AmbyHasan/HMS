@@ -50,7 +50,7 @@ router.get(
 );
 
 router.put(
-  '/:id/reschedule',
+  '/:id/reschedule',       //apt_id/reschedule
   authenticate,
   authorize(ROLES.ADMIN, ROLES.RECEPTIONIST),
   rescheduleAppointmentValidator,
@@ -59,7 +59,7 @@ router.put(
 );
 
 router.put(
-  '/:id/cancel',
+  '/:id/cancel',          //apt_id/cancel
   authenticate,
   authorize(ROLES.ADMIN, ROLES.RECEPTIONIST),
   appointmentIdValidator,
@@ -68,7 +68,7 @@ router.put(
 );
 
 router.put(
-  '/:id/notes',
+  '/:id/notes',   //apt_id/notes
   authenticate,
   authorize(ROLES.DOCTOR),
   appointmentNotesValidator,

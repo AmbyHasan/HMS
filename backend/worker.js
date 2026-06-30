@@ -6,15 +6,15 @@ dotenv.config();
 
 logger.info("HMS Notification Worker starting...");
 
-notificationWorker.start();
+notificationWorker.start();  //starts the notification server.
 
-process.on("SIGTERM", async () => {
+process.on("SIGTERM", async () => {  //manual interruption
   logger.info("SIGTERM received. Shutting down worker gracefully...");
   await notificationWorker.stop();
   process.exit(0);
 });
 
-process.on("SIGINT", async () => {
+process.on("SIGINT", async () => {  //interuption by some other process
   logger.info("SIGINT received. Shutting down worker gracefully...");
   await notificationWorker.stop();
   process.exit(0);

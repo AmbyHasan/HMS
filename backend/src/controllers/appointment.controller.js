@@ -5,7 +5,7 @@ const bookAppointment = async (req, res, next) => {
   try {
     const data = await appointmentService.bookAppointment(
       req.user.hospitalId,
-      req.user.id,
+      req.user.id, //the one who is booking the apt
       req.body
     );
     return sendSuccess(res, 201, 'Appointment booked successfully', data);
@@ -63,6 +63,8 @@ const getTodayAppointments = async (req, res, next) => {
   }
 };
 
+
+
 const getDoctorSchedule = async (req, res, next) => {
   try {
     const data = await appointmentService.getDoctorSchedule(
@@ -79,7 +81,7 @@ const getDoctorSchedule = async (req, res, next) => {
 const addConsultationNotes = async (req, res, next) => {
   try {
     const data = await appointmentService.addConsultationNotes(
-      req.params.id,
+      req.params.id,//apt id
       req.user.id,
       req.body.consultationNotes
     );

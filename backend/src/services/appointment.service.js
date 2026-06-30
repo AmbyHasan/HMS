@@ -70,11 +70,12 @@ const bookAppointment = async (hospitalId, bookedBy, payload) => {
     status: APPOINTMENT_STATUS.BOOKED,
   });
 
+  //get the created apt from db
   const fullAppointment = await appointmentRepository.findById(appointment.id);
 
-  // Publish notification asynchronously
-  await publishEvent(NOTIFICATION_TYPES.APPOINTMENT_BOOKED, {
-    patientName: patient.full_name,
+  // publish notification asynchronously
+  await publishEvent(NOTIFICATION_TYPES.APPOINTMENT_BOOKED, {   //here we are sending type and the payload
+    patientName: patient.full_name, 
     patientEmail: patient.email,
     doctorName: fullAppointment.doctor.user.full_name,
     appointmentDate,
@@ -85,7 +86,7 @@ const bookAppointment = async (hospitalId, bookedBy, payload) => {
 };
 
 const rescheduleAppointment = async (appointmentId, hospitalId, payload) => {
-  const { appointmentDate, timeSlotId } = payload;
+  const { appointmentDate, timeSlotId } = payload; //here we will new time slot id for which the apt is to be scheduled
 
   const appointment = await appointmentRepository.findByIdRaw(appointmentId);
 
@@ -205,6 +206,9 @@ const getTodayAppointments = async (hospitalId) => {
   return appointments.map(formatAppointment);
 };
 
+
+
+//if you want the schedule of a specific date , then send date also in the query paramater
 const getDoctorSchedule = async (requestingUser, queryDoctorId, date) => {
   let doctorId;
 
@@ -346,6 +350,7 @@ const formatAppointment = (appt) => ({
   } : null,
   appointmentDate: appt.appointment_date,
   slotTime: appt.timeSlot ? appt.timeSlot.slot_time.substring(0, 5) : null,
+  timeSlotId:appt.time_slot_id,
   status: appt.status,
  consultationNotes: appt.consultation
   ? appt.consultation.notes

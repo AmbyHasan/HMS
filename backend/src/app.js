@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));  //it converts url encoded form
 app.use(cookieParser());
 
 
-
+//routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin/doctor' , adminRoutes);
 app.use('/api/v1' , availabilityRoutes );

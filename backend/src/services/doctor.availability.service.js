@@ -36,11 +36,12 @@ const createAvailability = async (doctorId, hospitalId, payload) => {
     is_active: true,
   });
 
+  //generating time slots
   const slotTimes = generateTimeSlots(startTime, endTime, slotDuration);
 
 const createdSlots = await availabilityRepository.createTimeSlots(
   availability.id,
-  slotTimes
+  slotTimes //array of objects
 );
 
   return {

@@ -1,6 +1,7 @@
 import {publish} from "../queue/sqs.publisher.js"
 import logger from "../utils/logger.js";
 
+//this file is only responsible for calling the publish function (that inserts message in the queue)
 const publishEvent = async (type, payload) => {
   try {
     await publish({ type, payload });

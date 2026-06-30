@@ -3,6 +3,7 @@ import {sqsClient, SQS_QUEUE_URL, SQS_WAIT_TIME_SECONDS, SQS_MAX_MESSAGES } from
 import processNotification from "./email-service.js";
 import logger from "../utils/logger.js";
 
+//THIS IS RESPONSIBLE FOR POLLING CONTINOUSLY
 
 //variables for controlling the worker
 let isRunning = false;
@@ -13,13 +14,13 @@ let shouldStop = false;
 const processMessage = async (message) => {
   let body;
   try {
-    body = JSON.parse(message.Body);
+    body = JSON.parse(message.Body);  //since the JSON was converted into JSON string while sending to SQS
   } catch (err) {
     logger.error('Failed to parse SQS message body:', { body: message.Body, error: err.message });
     return;
   }
 
-  const { type, payload } = body;
+  const { type, payload } = body; 
 
   try {
     logger.info('Processing notification:', { type });
@@ -61,10 +62,11 @@ const poll = async () => {
     result = await sqsClient.send(command); //recieve all msgs
   } catch (err) {
       console.log(err);
-  }
-    await sleep(5000);
-    return;
+      await sleep(5000);  //wait for 5 sec after an error arise and then poll
+      return;
   
+  }
+    
 
   const messages = result.Messages || [];
 
@@ -123,3 +125,36 @@ const stop = async () => {
 };
 
 export { start, stop };
+
+
+
+
+// Book Appointment API
+//         │
+//         ▼
+// Appointment Service
+//         │
+//         ▼
+// publishEvent()
+//         │
+//         ▼
+// publish()
+//         │
+//         ▼
+// AWS SQS Queue
+//         │
+//         │ (message waits)
+//         ▼
+// Notification Worker (polling continuously)
+//         │
+//         ▼
+// processMessage()
+//         │
+//         ▼
+// processNotification()
+//         │
+//         ▼
+// Send Email
+//         │
+//         ▼
+// Delete message from SQS

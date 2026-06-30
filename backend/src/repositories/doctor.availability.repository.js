@@ -9,9 +9,9 @@ const create = async (data) => {
   return DoctorAvailability.create(data);
 };
 
-const findByDoctorAndDay = async (doctorId, dayOfWeek, excludeId = null) => {
+const findByDoctorAndDay = async (doctorId, dayOfWeek, excludeId = null) => {    //if exclude id is null it means we are checking if the availability of the doctor for that day exists or not
   const where = { doctor_id: doctorId, day_of_week: dayOfWeek };
-  if (excludeId) where.id = { [Op.ne]: excludeId };
+  if (excludeId) where.id = { [Op.ne]: excludeId };    //if the exlude id is not null  , it means we have to exclude this id and then check for the availability
   return DoctorAvailability.findOne({ where });
 };
 
@@ -46,7 +46,7 @@ const createTimeSlots = async (availabilityId, slotTimes) => {
     slot_time,
     is_active: true,
   }));
-  return TimeSlot.bulkCreate(slots ,{ returning: true });
+  return TimeSlot.bulkCreate(slots ,{ returning: true }); //storing the time slots in db
 };
 
 const deactivateTimeSlots = async (availabilityId) => {
