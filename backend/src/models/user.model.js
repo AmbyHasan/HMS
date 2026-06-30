@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 
-
+//in this table three entities will be stored -> User , Doctor , Receptionist
 export default (sequelize) => {
   const User = sequelize.define(
     "User",

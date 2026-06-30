@@ -4,6 +4,7 @@ import * as notificationWorker from "./src/workers/notification.worker.js";
 
 dotenv.config();
 
+//THIS FILE IS RESPONSIBLE FOR STARTING THE NOTIFICATION WORKER
 logger.info("HMS Notification Worker starting...");
 
 notificationWorker.start();  //starts the notification server.

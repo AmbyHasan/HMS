@@ -34,8 +34,8 @@ class AppError extends Error {
   };
 };
 
-const getPatients = async (id) => {  //here id -> admin or receptionist id that registered the patient
-  const patients = await patientRepository.findAll(id);
+const getPatients = async (id) => {  //here id -> hospital id , taken from the user table that has the registered by
+  const patients = await patientRepository.findAllByHospital(id);
 
   return patients.map((p) => ({
     id: p.id,
@@ -47,8 +47,8 @@ const getPatients = async (id) => {  //here id -> admin or receptionist id that 
   }));
 };
 
-const getPatientById = async (id ,registered_by_id) => {
-  const patient = await patientRepository.findByIdAndRegistrarId(id, registered_by_id);
+const getPatientById = async (id ,hospital_id) => {
+  const patient = await patientRepository.findByIdAndHospitalId(id, hospital_id);
 
   if (!patient) {
     throw new AppError('Patient not found.', 404);
@@ -65,8 +65,8 @@ const getPatientById = async (id ,registered_by_id) => {
   };
 };
 
-const updatePatient = async (id, registered_by_id, payload) => {
-  const patient = await patientRepository.findByIdAndRegistrarId(id, registered_by_id);
+const updatePatient = async (id, hospital_id, payload) => {
+  const patient = await patientRepository.findByIdAndHospitalId(id, hospital_id);
 
   if (!patient) {
     throw new AppError('Patient not found.', 404);

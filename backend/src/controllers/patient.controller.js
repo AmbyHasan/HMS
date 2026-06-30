@@ -18,7 +18,8 @@ const registerPatient = async (req, res, next) => {
 //here we are getting all the patients that have been registered by a single admin or receptionist
 const getPatients = async (req, res, next) => {
   try {
-    const data = await patientService.getPatients(req.user.id);  //admin or recpetionist id
+     
+    const data = await patientService.getPatients(req.user.hospitalId);  //hospital id
     return sendSuccess(res, 200, 'Patients retrieved successfully', data);
   } catch (error) {
     next(error);
@@ -27,7 +28,7 @@ const getPatients = async (req, res, next) => {
 
 const getPatientById = async (req, res, next) => {
   try {
-    const data = await patientService.getPatientById(req.params.id, req.user.id);
+    const data = await patientService.getPatientById(req.params.id, req.user.hospitalId);
     return sendSuccess(res, 200, 'Patient retrieved successfully', data);
   } catch (error) {
     next(error);
@@ -38,7 +39,7 @@ const updatePatient = async (req, res, next) => {
   try {
     const data = await patientService.updatePatient(
       req.params.id,
-      req.user.id,
+      req.user.hospitalId,
       req.body
     );
     return sendSuccess(res, 200, 'Patient updated successfully', data);
