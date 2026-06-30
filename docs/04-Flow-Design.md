@@ -15,8 +15,9 @@
 This flow describes how a Receptionist registers a new patient and books an appointment. The system checks whether the patient already exists before creating a new record. Once a slot is confirmed, the appointment is stored and a notification is dispatched asynchronously.
 
 ```mermaid
+
 flowchart TD
-    A([Receptionist Logs In]) --> B[Search Patient by Name or Phone]
+    A([Receptionist Logs In]) --> B[Search Existing Patient]
     B --> C{Patient Exists?}
 
     C -- No --> D[Register New Patient]
@@ -26,18 +27,19 @@ flowchart TD
     E --> F[Select Doctor]
     F --> G[Select Appointment Date]
     G --> H[Fetch Available Time Slots]
-    H --> I[Display Active & Unbooked Time Slots]
+    H --> I[Display Available & Active Slots]
     I --> J[Receptionist Selects Time Slot]
-    J --> K[Create Appointment]
 
-    K --> L{Slot Still Available?}
+    J --> K[Validate Booking Request]
+    K --> L{Slot Available?}
+
     L -- No --> I
-    L -- Yes --> M[Appointment Status: Booked]
+    L -- Yes --> M[Create Appointment]
+    M --> N[Appointment Status = Booked]
+    N --> O[Publish Notification to Amazon SQS]
+    O --> P[Notification Worker Sends Email]
+    N --> Q([Appointment Confirmed])
 
-    M --> N[Publish Message to Amazon SQS]
-    N --> O[Notification Worker Sends Confirmation Email]
-
-    M --> P([Appointment Confirmed])
 ```
 
 ---
@@ -51,10 +53,11 @@ flowchart TD
     A([Doctor Logs In]) --> B[View Today's Schedule]
     B --> C[Select Appointment]
     C --> D[View Patient Details]
-    D --> E[Add Consultation Notes]
-    E --> F[Mark Appointment as Completed]
-    F --> G[Appointment Status: Completed]
-    G --> H([Consultation Recorded])
+    D --> E[Save Consultation]
+    E --> F[Consultation Record Created]
+    F --> G[Complete Appointment]
+    G --> H[Appointment Status = Completed]
+    H --> I([Consultation Completed])
 ```
 
 ---
@@ -271,29 +274,32 @@ Notifications are sent asynchronously. The API response is returned to the clien
 
 ```mermaid
 sequenceDiagram
-    participant AppService as Appointment Service
+    participant Service as Application Service
     participant DB as PostgreSQL
     participant SQS as Amazon SQS
     participant Worker as Notification Worker
     participant SMTP as SMTP Server
-    participant Patient
+    participant User
 
-    AppService->>DB: Store Appointment
-    DB-->>AppService: Appointment Confirmed
-    AppService->>SQS: Publish Notification Message
-    Note over SQS: Message queued independently of API response
+    Service->>DB: Save Business Event
+    DB-->>Service: Success
+    Service->>SQS: Publish Notification Event
+    Note over SQS: API response returned immediately
 
     loop Long Polling
-        Worker->>SQS: Poll for Messages
-        SQS-->>Worker: Notification Message Received
-        Worker->>Worker: Determine Notification Type
+        Worker->>SQS: Poll Messages
+        SQS-->>Worker: Notification Event
+
         alt Appointment Booked
             Worker->>SMTP: Send Booking Confirmation
         else Appointment Cancelled
-            Worker->>SMTP: Send Cancellation Notice
+            Worker->>SMTP: Send Cancellation Email
+        else Password Reset
+            Worker->>SMTP: Send Password Reset Email
         end
-        SMTP->>Patient: Email Delivered
-        Worker->>SQS: Acknowledge and Remove Message
+
+        SMTP->>User: Email Delivered
+        Worker->>SQS: Delete Processed Message
     end
 ```
 
@@ -370,20 +376,21 @@ flowchart TD
 ### RBAC Matrix
 
 | Action | Admin | Receptionist | Doctor |
-|---|---|---|---|
+|---|:---:|:---:|:---:|
 | Login | ✅ | ✅ | ✅ |
 | Manage Doctors | ✅ | ❌ | ❌ |
 | Set Doctor Availability | ✅ | ❌ | ❌ |
 | Register Patients | ✅ | ✅ | ❌ |
-| Book Appointment | ❌ | ✅ | ❌ |
-| Reschedule Appointment | ❌ | ✅ | ❌ |
-| Cancel Appointment | ❌ | ✅ | ❌ |
-| View All Appointments | ✅ | ✅ | ❌ |
-| View Own Appointments | ❌ | ❌ | ✅ |
-| View Patient Details | ❌ | ❌ | ✅ |
-| Add Consultation Notes | ❌ | ❌ | ✅ |
-| Mark Appointment Completed | ❌ | ❌ | ✅ |
-| View Dashboard | ✅ | ✅ | ✅ |  
+| View Patients | ✅ | ✅ | ✅* |
+| Book Appointment | ✅ | ✅ | ❌ |
+| Reschedule Appointment | ✅ | ✅ | ❌ |
+| Cancel Appointment | ✅ | ✅ | ❌ |
+| View Appointment History | ✅ | ✅ | ❌ |
+| View Today's Appointments | ✅ | ✅ | ❌ |
+| View Doctor Schedule | ✅ | ❌ | ✅ |
+| Add Consultation | ❌ | ❌ | ✅ |
+| Complete Appointment | ❌ | ❌ | ✅ |
+| View Dashboard | ✅ | ✅ | ✅ |
 
 ---
 
