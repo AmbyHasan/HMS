@@ -246,44 +246,29 @@ flowchart LR
 
 This matrix defines exactly which actions each role can perform, derived directly from the BRD.
 
-| Feature | Admin | Receptionist | Doctor |
-|---|:---:|:---:|:---:|
-| **Authentication** | | | |
+| Module / Feature | Admin | Receptionist | Doctor |
+|------------------|:----:|:------------:|:------:|
 | Login | ✅ | ✅ | ✅ |
 | Logout | ✅ | ✅ | ✅ |
 | Forgot Password | ✅ | ✅ | ✅ |
-| **Doctor Management** | | | |
 | Create Doctor | ✅ | ❌ | ❌ |
+| View Doctors | ✅ | ❌ | ✅ (Own Profile) |
 | Update Doctor | ✅ | ❌ | ❌ |
-| Delete Doctor (Soft) | ✅ | ❌ | ❌ |
-| View Doctor List | ✅ | ❌ | ❌ |
-| View Doctor Details | ✅ | ❌ | ✅ (own) |
-| **Doctor Availability**	| | | |		
-|Create Availability	| ✅ |	❌ |	❌ |
-|View Availability	| ✅ |	❌ |	❌ | 
-|Update Availability	| ✅ |	❌ |	❌ |
-|Deactivate Availability	| ✅ |	❌ |	❌ |
-| **Patient Management** | | | |
+| Delete Doctor | ✅ | ❌ | ❌ |
+| Manage Doctor Availability | ✅ | ❌ | ❌ |
+| View Available Slots | ✅ | ✅ | ❌ |
 | Register Patient | ✅ | ✅ | ❌ |
+| View Patients | ✅ | ✅ | ✅ |
 | Update Patient | ✅ | ✅ | ❌ |
-| View Patient List | ✅ | ✅ | ❌ |
-| View Patient Details | ✅ | ✅ | ✅ |
-| **Appointment Management** | | | |
 | Book Appointment | ✅ | ✅ | ❌ |
 | Reschedule Appointment | ✅ | ✅ | ❌ |
 | Cancel Appointment | ✅ | ✅ | ❌ |
 | View Appointment History | ✅ | ✅ | ❌ |
 | View Today's Appointments | ✅ | ✅ | ❌ |
-| View Doctor Schedule | ✅ | ❌ | ✅ (own) |
-| **Consultation** | | | |
+| View Doctor Schedule | ✅ | ❌ | ✅ |
 | Add Consultation Notes | ❌ | ❌ | ✅ |
-| Mark Appointment Completed | ❌ | ❌ | ✅ |
-| **Dashboard** | | | |
-| Admin Dashboard | ✅ | ❌ | ❌ |
-| Receptionist Dashboard | ❌ | ✅ | ❌ |
-| Doctor Dashboard | ❌ | ❌ | ✅ |
-
-> **Legend:** ✅ Permitted &nbsp;&nbsp; ❌ Not Permitted &nbsp;&nbsp; ✅ (own) Permitted for own records only
+| Complete Appointment | ❌ | ❌ | ✅ |
+| Dashboard | Role Specific | Role Specific | Role Specific |
 
 ---
 
