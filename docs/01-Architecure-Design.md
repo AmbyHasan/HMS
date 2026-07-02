@@ -79,32 +79,34 @@ The Hospital Management System is organized into the following functional module
 
 ## 3. High-Level System Architecture
 
-This diagram shows every major system component and how they connect — from the user's browser all the way to the database and notification service.
+This diagram shows every major system component and how they connect—from the user's browser to the database and asynchronous notification service. PM2 manages two independent Node.js processes: **Process 1 (API Server)** and **Process 2 (Notification Worker)**.
 
 ```mermaid
 graph TD
     subgraph Client["🖥️ Client Layer"]
-        Browser["React SPA\n(Browser)"]
+        Browser["React SPA<br/>(Browser)"]
     end
 
     subgraph EC2["☁️ AWS EC2 Instance"]
-        Nginx["Nginx\nReverse Proxy"]
+        Nginx["Nginx<br/>Reverse Proxy"]
 
         subgraph PM2["PM2 Process Manager"]
-            subgraph App["API Server"]
-                Express["Express.js\nHTTP Server"]
+
+            subgraph P1["Process 1: API Server"]
+                Express["Express.js<br/>HTTP Server"]
                 Routes["Route Layer"]
-                Middleware["Middleware\n(Auth · RBAC · Validation)"]
+                Middleware["Middleware<br/>(Auth · RBAC · Validation)"]
                 Controllers["Controller Layer"]
-                Services["Service Layer\n(Business Logic)"]
-                Repos["Repository Layer\n(Data Access)"]
-                SQSPub["Notification Service\n(Publishes Events)"]
+                Services["Service Layer<br/>(Business Logic)"]
+                Repos["Repository Layer<br/>(Data Access)"]
+                SQSPub["Notification Service<br/>(Publishes Events)"]
             end
 
-            subgraph Worker["Background Worker"]
-                SQSPoll["SQS Worker\n(Long Polling)"]
+            subgraph P2["Process 2: Notification Worker"]
+                SQSPoll["SQS Worker<br/>(Long Polling)"]
                 SMTP["SMTP Mailer"]
             end
+
         end
 
         subgraph DB["Database"]
@@ -113,27 +115,31 @@ graph TD
     end
 
     subgraph AWS["☁️ AWS Services"]
-        SQS["Amazon SQS\n(Notification Queue)"]
+        SQS["Amazon SQS<br/>(Notification Queue)"]
     end
 
-    subgraph External["📧 External"]
-        EmailSvc["Email Provider\n(SMTP)"]
+    subgraph External["📧 External Services"]
+        EmailSvc["Email Provider<br/>(SMTP)"]
+        UserInbox["User Mailbox"]
     end
 
     Browser -->|HTTPS Request| Nginx
     Nginx -->|Proxy to API| Express
+
     Express --> Routes
     Routes --> Middleware
     Middleware --> Controllers
     Controllers --> Services
     Services --> Repos
     Repos -->|Sequelize ORM| PG
+
     Services -->|Publish Event| SQSPub
     SQSPub -->|Enqueue Message| SQS
+
     SQSPoll -->|Long Poll| SQS
     SQSPoll --> SMTP
     SMTP -->|Send Email| EmailSvc
-    EmailSvc -->|Delivers Email| UserInbox["User Mailbox"]
+    EmailSvc -->|Delivers Email| UserInbox
 ```
 ### Why Each Component Exists
 
@@ -152,7 +158,7 @@ graph TD
 ---
 ## 4. AWS Architecture
 
-The entire system runs on a **single AWS EC2 instance**. PM2 manages two independent Node.js processes: the API Server and the Notification Worker. PostgreSQL is hosted on the same EC2 instance, while Amazon SQS is used as an external managed message queue.
+The entire system runs on a **single AWS EC2 instance**. PM2 manages two independent Node.js processes: **Process 1 (API Server)** and **Process 2 (Notification Worker)**. PostgreSQL is hosted on the same EC2 instance, while Amazon SQS is used as an external managed message queue.
 
 ```mermaid
 graph TD
@@ -163,8 +169,11 @@ graph TD
         Nginx["Nginx<br/>Reverse Proxy + Static File Server"]
 
         subgraph PM2["PM2 Process Manager"]
-            API["API Server<br/>Node.js + Express"]
-            Worker["Notification Worker<br/>Long Polling"]
+
+            P1["Process 1<br/>API Server<br/>(Node.js + Express)"]
+
+            P2["Process 2<br/>Notification Worker<br/>(Long Polling)"]
+
         end
 
         PG["PostgreSQL<br/>(Same Instance)"]
@@ -175,14 +184,14 @@ graph TD
     GH["GitHub<br/>(Source Code Repository)"]
 
     Internet -->|HTTPS| Nginx
-    Nginx -->|API Requests| API
+    Nginx -->|API Requests| P1
     Nginx -->|Static Files| Nginx
 
-    API -->|Read / Write| PG
-    API -->|Publish Notification| SQS
+    P1 -->|Read / Write| PG
+    P1 -->|Publish Notification| SQS
 
-    Worker -->|Long Poll| SQS
-    Worker -->|Send Email| SMTP
+    P2 -->|Long Poll| SQS
+    P2 -->|Send Email| SMTP
 
     GH -->|git pull| EC2
 ```
