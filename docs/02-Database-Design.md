@@ -245,6 +245,8 @@ The `consultations` table stores the clinical notes recorded by a doctor after a
 
 ### 4.1 Relationship Overview
 
+### 4.1 Relationship Overview
+
 ```mermaid
 erDiagram
     HOSPITALS ||--o{ USERS : "employs"
@@ -253,6 +255,7 @@ erDiagram
     USERS ||--|| DOCTORS : "has profile"
     USERS ||--o{ APPOINTMENTS : "books (booked_by)"
     USERS ||--o{ PATIENTS : "registers (registered_by)"
+    USERS ||--o{ CONSULTATIONS : "creates"
 
     DOCTORS ||--o{ DOCTOR_AVAILABILITIES : "has"
     DOCTORS ||--o{ APPOINTMENTS : "assigned to"
@@ -262,6 +265,8 @@ erDiagram
     PATIENTS ||--o{ APPOINTMENTS : "attends"
 
     TIME_SLOTS ||--o{ APPOINTMENTS : "reserved for"
+
+    APPOINTMENTS ||--|| CONSULTATIONS : "has"
 ```
 
 ---
@@ -405,6 +410,8 @@ graph TD
 
     U -->|hasOne| D["Doctor"]
     U -->|hasMany| P["Patient"]
+    U -->|hasMany| C["Consultation"]
+
     D -->|belongsTo| U
     D -->|hasMany| DA["DoctorAvailability"]
     D -->|hasMany| A
@@ -423,8 +430,11 @@ graph TD
     A -->|belongsTo| TS
     A -->|belongsTo| H
     A -->|belongsTo| U
-```
+    A -->|hasOne| C
 
+    C -->|belongsTo| A
+    C -->|belongsTo| U
+```
 ---
 
 ### 6.2 Association Rationale
@@ -511,7 +521,6 @@ erDiagram
 
     PATIENTS {
         uuid id PK
-        uuid hospital_id FK
         uuid registered_by FK
         varchar full_name
         date date_of_birth
@@ -554,7 +563,6 @@ erDiagram
         uuid booked_by FK
         date appointment_date
         enum status "booked|completed|cancelled"
-        text consultation_notes
         timestamp cancelled_at
         timestamp completed_at
         timestamp created_at
@@ -563,29 +571,33 @@ erDiagram
     }
 
     CONSULTATIONS {
-    uuid id PK
-    uuid appointment_id FK
-    uuid created_by FK
-    text notes
-    timestamp created_at
-    timestamp updated_at
-    timestamp deleted_at
+        uuid id PK
+        uuid appointment_id FK
+        uuid created_by FK
+        text notes
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
     }
 
-
     HOSPITALS ||--o{ USERS : "employs"
-    HOSPITALS ||--o{ DOCTORS : "has"
     HOSPITALS ||--o{ APPOINTMENTS : "hosts"
+
     USERS ||--|| DOCTORS : "has profile"
-    USERS ||--o{ PATIENTS : "registered_by"
-    USERS ||--o{ APPOINTMENTS : "booked_by"
+    USERS ||--o{ PATIENTS : "registers"
+    USERS ||--o{ APPOINTMENTS : "books"
+    USERS ||--o{ CONSULTATIONS : "creates"
+
     DOCTORS ||--o{ DOCTOR_AVAILABILITIES : "has"
     DOCTORS ||--o{ APPOINTMENTS : "assigned to"
+
     DOCTOR_AVAILABILITIES ||--o{ TIME_SLOTS : "generates"
+
     PATIENTS ||--o{ APPOINTMENTS : "attends"
+
     TIME_SLOTS ||--o{ APPOINTMENTS : "reserved for"
+
     APPOINTMENTS ||--|| CONSULTATIONS : "has"
-    USERS ||--o{ CONSULTATIONS : "creates"
 ```
 
 ---
