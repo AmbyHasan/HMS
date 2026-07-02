@@ -236,22 +236,35 @@ flowchart TD
 
 ## 4. AWS Component Flow
 
-The system is deployed on a single AWS EC2 instance. Nginx acts as the entry point, PM2 manages the Node.js process, and Amazon SQS decouples notification delivery from the API response.
+The system is deployed on a single AWS EC2 instance. Nginx acts as the entry point, PM2 manages two independent Node.js processes (API Server and Notification Worker), while Amazon SQS decouples notification processing from the request lifecycle.
 
 ```mermaid
-flowchart TD
-    A([Browser]) --> B[Nginx\nReverse Proxy]
+flowchart LR
 
-    subgraph EC2 Instance
-        B --> C[PM2\nProcess Manager]
-        C --> D[Node.js Application]
-        D --> E[(PostgreSQL\nDatabase)]
-        D --> F[Amazon SQS\nNotification Queue]
-        F --> G[Notification Worker\nLong Polling]
+    Browser([Browser]) --> Nginx[Nginx<br/>Reverse Proxy]
+
+    subgraph EC2["AWS EC2 Instance"]
+
+        Nginx --> API
+
+        subgraph PM2["PM2 Process Manager"]
+
+            API["API Server<br/>(Express.js)"]
+
+            Worker["Notification Worker<br/>(Long Polling)"]
+
+        end
+
+        API --> DB[(PostgreSQL)]
     end
 
-    G --> H[SMTP Server]
-    H --> I([Patient Email])
+    SQS["Amazon SQS"]
+
+    API -->|Publish Event| SQS
+    Worker -->|Long Poll| SQS
+
+    Worker --> SMTP["SMTP Server"]
+    SMTP --> Mail([Patient Email])
 ```
 
 ### Component Communication
