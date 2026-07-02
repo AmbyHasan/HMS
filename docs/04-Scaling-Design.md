@@ -211,4 +211,3 @@ flowchart TB
 | Amazon SQS              | Single queue        | Same single shared queue (unchanged)        |
 | Duplicate handling      | None                | `notification_logs` + `eventId` idempotency |
 
-No new AWS services, messaging systems, or infrastructure orchestration tools were introduced. The scaling model is purely: **replicate the existing EC2 unit, keep PostgreSQL and SQS shared, and add idempotency to handle At-Least-Once delivery.**
