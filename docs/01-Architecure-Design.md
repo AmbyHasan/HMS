@@ -321,6 +321,7 @@ graph TD
         PatientM["Patient"]
         ApptM["Appointment"]
         DoctorAvailabilitytM["DoctorAvailability"]
+        Consultation["Consultation"]
     end
 
     PG["PostgreSQL"]
