@@ -33,7 +33,7 @@ flowchart TB
 
 ## 2. Horizontal Scaling
 
-Instead of one EC2 instance, we deploy **multiple EC2 instances behind a Load Balancer**. Each instance runs the same PM2 process layout as today — nothing new is introduced, we simply replicate the existing unit.
+Instead of one EC2 instance, we deploy **multiple EC2 instances behind a Load Balancer**. Each instance runs the same PM2 process layout 
 
 ```mermaid
 flowchart TB
@@ -105,7 +105,7 @@ SQS guarantees **At-Least-Once Delivery** — a message may occasionally be deli
 
 ## 6. Worker Failure
 
-If a worker crashes after receiving a message but before deleting it, SQS's **visibility timeout** ensures the message is not lost — it becomes visible again and is picked up by another worker.
+If a Notification Worker crashes after receiving a message but **before calling `DeleteMessage()`**, Amazon SQS does not remove the message from the queue. Instead, the message remains hidden for the duration of the **Visibility Timeout**. Once the timeout expires, the message becomes visible again and can be processed by another worker.
 
 ```mermaid
 sequenceDiagram
@@ -113,15 +113,19 @@ sequenceDiagram
     participant W1 as Worker A
     participant W2 as Worker B
 
-    W1->>SQS: Receive Message
-    Note over W1: Worker crashes before deleting message
-    Note over SQS: Visibility timeout expires
-    SQS-->>SQS: Message becomes visible again
-    W2->>SQS: Receive Message
-    W2->>SQS: Process & Delete Message
+    SQS-->>W1: Deliver Message
+    Note over W1: Processes notification
+    Note over W1: Worker crashes before calling DeleteMessage()
+
+    Note over SQS: Visibility Timeout expires
+    SQS-->>W2: Redeliver Message
+
+    W2->>SQS: DeleteMessage()
 ```
 
-This gives the system automatic recovery from worker crashes with no manual intervention.
+**Result:** The same notification may be delivered to another worker, potentially resulting in a duplicate email.
+
+This behavior is expected because Amazon SQS provides **At-Least-Once Delivery**. The next section explains how **eventId-based idempotency** prevents duplicate notification processing.
 
 ---
 
