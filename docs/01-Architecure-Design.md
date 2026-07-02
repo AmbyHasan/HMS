@@ -150,33 +150,40 @@ graph TD
 | **SMTP Mailer** | Sends actual emails via a configured SMTP provider. Keeps email logic out of the main API process. |
 
 ---
-
 ## 4. AWS Architecture
 
-The entire system runs on a **single EC2 instance**.
+The entire system runs on a **single AWS EC2 instance**. PM2 manages two independent Node.js processes: the API Server and the Notification Worker. PostgreSQL is hosted on the same EC2 instance, while Amazon SQS is used as an external managed message queue.
 
 ```mermaid
 graph TD
-    Internet["🌐 Public Internet\n(End User)"]
+    Internet["🌐 Public Internet<br/>(End User)"]
 
-    subgraph EC2["AWS EC2 Instance"]
-        Nginx["Nginx\n(Reverse Proxy + Static File Server)"]
-        Node["Node.js API\n(Express + PM2)"]
-        PG["PostgreSQL\n(Same Instance)"]
-        Worker["SQS Worker\n(PM2 Background Process)"]
+    subgraph EC2["☁️ AWS EC2 Instance"]
+
+        Nginx["Nginx<br/>Reverse Proxy + Static File Server"]
+
+        subgraph PM2["PM2 Process Manager"]
+            API["API Server<br/>Node.js + Express"]
+            Worker["Notification Worker<br/>Long Polling"]
+        end
+
+        PG["PostgreSQL<br/>(Same Instance)"]
     end
 
-    SQS["Amazon SQS\n(Managed Queue)"]
-    SMTP["SMTP Server\n(Email Provider)"]
-    GH["GitHub\n(Source Code)"]
+    SQS["Amazon SQS<br/>(Managed Queue)"]
+    SMTP["SMTP Server<br/>(Email Provider)"]
+    GH["GitHub<br/>(Source Code Repository)"]
 
     Internet -->|HTTPS| Nginx
-    Nginx -->|API Requests| Node
+    Nginx -->|API Requests| API
     Nginx -->|Static Files| Nginx
-    Node --> PG
-    Node -->|Publish Notification| SQS
+
+    API -->|Read / Write| PG
+    API -->|Publish Notification| SQS
+
     Worker -->|Long Poll| SQS
-    Worker --> SMTP
+    Worker -->|Send Email| SMTP
+
     GH -->|git pull| EC2
 ```
 
