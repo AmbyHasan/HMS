@@ -169,7 +169,9 @@ const getAvailableSlots = async (doctorId, hospitalId, date) => {
     return [];
   }
 
+  //find out those slot ids which have been booked
   const bookedSlotIds = await appointmentRepository.findBookedSlotIds(doctorId, date);
+
   const bookedSet = new Set(bookedSlotIds);
 
   const slots = (availability.timeSlots || []).filter(

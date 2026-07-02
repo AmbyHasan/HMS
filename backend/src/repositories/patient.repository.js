@@ -7,11 +7,14 @@ const create = async (data) => {
   return Patient.create(data);
 };
 
-const findAll = async (hospital_id) => {
-  return Patient.findAll({
-    where: { hospital_id: hospital_id},
-    attributes: { exclude: ['deleted_at'] },
-    order: [['created_at', 'DESC']],
+const findAll = async (hospitalId) => {
+  return  Patient.findAll({
+    include: [{
+      model: User,
+      as: 'registeredBy',
+      where: { hospital_id: hospitalId, is_active: true },
+      attributes: ['id', 'full_name', 'email', 'hospital_id'],
+    }],
   });
 };
 

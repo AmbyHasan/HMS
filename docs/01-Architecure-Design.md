@@ -90,23 +90,25 @@ graph TD
     subgraph EC2["☁️ AWS EC2 Instance"]
         Nginx["Nginx\nReverse Proxy"]
 
-        subgraph App["Node.js Application (PM2)"]
-            Express["Express.js\nHTTP Server"]
-            Routes["Route Layer"]
-            Middleware["Middleware\n(Auth · RBAC · Validation)"]
-            Controllers["Controller Layer"]
-            Services["Service Layer\n(Business Logic)"]
-            Repos["Repository Layer\n(Data Access)"]
-            SQSPub["Notification Service\n(Publishes Events)"]
+        subgraph PM2["PM2 Process Manager"]
+            subgraph App["API Server"]
+                Express["Express.js\nHTTP Server"]
+                Routes["Route Layer"]
+                Middleware["Middleware\n(Auth · RBAC · Validation)"]
+                Controllers["Controller Layer"]
+                Services["Service Layer\n(Business Logic)"]
+                Repos["Repository Layer\n(Data Access)"]
+                SQSPub["Notification Service\n(Publishes Events)"]
+            end
+
+            subgraph Worker["Background Worker"]
+                SQSPoll["SQS Worker\n(Long Polling)"]
+                SMTP["SMTP Mailer"]
+            end
         end
 
         subgraph DB["Database"]
             PG["PostgreSQL"]
-        end
-
-        subgraph Worker["Background Worker (PM2)"]
-            SQSPoll["SQS Worker\n(Long Polling)"]
-            SMTP["SMTP Mailer"]
         end
     end
 
@@ -133,7 +135,6 @@ graph TD
     SMTP -->|Send Email| EmailSvc
     EmailSvc -->|Delivers Email| UserInbox["User Mailbox"]
 ```
-
 ### Why Each Component Exists
 
 | Component | Why It's Here |

@@ -17,7 +17,7 @@ const getAdminDashboard = async (hospitalId ,registered_by_id) => {
 
   const [totalDoctors, totalPatients, totalAppointments, todaysAppointments] = await Promise.all([
     doctorRepository.findAll(hospitalId).then((docs) => docs.length),
-    patientRepository.findAll(registered_by_id).then((patients) => patients.length),
+    patientRepository.findAll(hospitalId).then((patients) => patients.length),
     appointmentRepository.countByHospital(hospitalId),
     appointmentRepository.countTodayByHospital(hospitalId, today),
   ]);

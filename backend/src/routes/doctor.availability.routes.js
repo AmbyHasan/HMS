@@ -12,7 +12,7 @@ const router = Router();
 router.post(
   '/doctors/:id/availability',
   authenticate,
-  authorize(ROLES.ADMIN),
+  authorize(ROLES.ADMIN ,ROLES.RECEPTIONIST),
   createAvailabilityValidator,
   validate,
   availabilityController.createAvailability
@@ -34,11 +34,11 @@ router.get(
   availabilityController.getAvailableSlots
 );
 
-// standalone availability resource routes
+//here we will put the availability id
 router.put(
   '/doctors/availability/:id',
   authenticate,
-  authorize(ROLES.ADMIN),
+  authorize(ROLES.ADMIN ,ROLES.RECEPTIONIST),
   updateAvailabilityValidator,
   validate,
   availabilityController.updateAvailability
@@ -47,7 +47,7 @@ router.put(
 router.delete(
   '/availability/:id',
   authenticate,
-  authorize(ROLES.ADMIN),
+  authorize(ROLES.ADMIN ,ROLES.RECEPTIONIST),
   availabilityIdValidator,
   validate,
   availabilityController.deleteAvailability
