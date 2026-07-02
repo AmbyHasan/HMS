@@ -1,9 +1,5 @@
 # Hospital Management System (HMS) — Scaling Architecture
 
-This document explains how the current HMS architecture scales under increasing traffic, using the existing technology stack only: **React, Nginx, Node.js/Express, PostgreSQL, Amazon SQS, SMTP, PM2, and EC2**.
-
----
-
 ## 1. Current Architecture
 
 Today, the entire system runs on a **single EC2 instance**. PM2 manages two independent Node.js processes, and PostgreSQL runs locally on the same box.
@@ -11,20 +7,24 @@ Today, the entire system runs on a **single EC2 instance**. PM2 manages two inde
 ```mermaid
 flowchart TB
     User([User]) --> Nginx[Nginx]
-    Nginx --> API["Process 1: API Server (PM2)"]
 
     subgraph EC2["Single EC2 Instance"]
-        Nginx
-        API
-        Worker["Process 2: Notification Worker (PM2)"]
+
+        Nginx --> PM2["PM2 Process Manager"]
+
+        subgraph PM2Processes["PM2"]
+            API["Process 1:<br/>API Server"]
+            Worker["Process 2:<br/>Notification Worker"]
+        end
+
         PG[(PostgreSQL)]
-        API --> PG
-        Worker --> PG
+
+        API -->|Read / Write| PG
     end
 
-    API --> SQS[(Amazon SQS)]
-    Worker -- long polling --> SQS
-    Worker --> SMTP[SMTP Provider]
+    API -->|Publish Event| SQS[(Amazon SQS)]
+    Worker -->|Long Poll| SQS
+    Worker -->|Send Email| SMTP[SMTP Provider]
 ```
 
 **Limitation:** All components share one machine's CPU, memory, and network — API traffic, background worker load, and the database all compete for the same resources.
