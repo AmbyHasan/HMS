@@ -10,7 +10,7 @@ flowchart TB
 
     subgraph EC2["Single EC2 Instance"]
 
-        Nginx --> PM2["PM2 Process Manager"]
+        Nginx --> PM2Processes["PM2"]
 
         subgraph PM2Processes["PM2"]
             API["Process 1:<br/>API Server"]
